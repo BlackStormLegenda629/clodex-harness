@@ -1,0 +1,2 @@
+The gradle wrapper jar is binary and is not part of this archive.
+Open the project in Android Studio (it creates the wrapper), or run once: gradle wrapper --gradle-version 8.9

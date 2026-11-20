@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Отдельный прототип: карточка → просмотрщик HTML. ?variant=full (как на референсе), split или tabs. -->
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Clodex · HTML Preview — прототип</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#171715;color:#f4f1e9;font:15px system-ui,sans-serif}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid #ed9c78;outline-offset:3px}button:disabled{cursor:default;color:#8e8980}button.icon{height:42px;min-width:42px;border:0;border-radius:11px;background:transparent;font-size:21px}button.icon:hover,summary:hover{background:#2b2a26}.app{height:100dvh;display:grid;grid-template-columns:minmax(174px,22%) minmax(0,1fr)}aside{border-right:1px solid #34332e;padding:22px 14px}.brand{font-weight:680;font-size:17px}.badge{font-size:10px;color:#ebae91;letter-spacing:.13em;text-transform:uppercase}.section{margin-top:36px;font-size:12px;color:#aaa59b}.selected{margin-top:9px;padding:12px;background:#2b2a26;border-radius:12px}.chat{min-width:0;display:flex;flex-direction:column}.bar{border-bottom:1px solid #34332e;display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:58px;padding:5px 12px;background:#1d1c19}.bar strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;font-size:14px}.messages{width:min(700px,100%);margin:0 auto;padding:24px;flex:1}.prompt{background:#2d2b27;border:1px solid #3d3a32;border-radius:16px 16px 5px 16px;padding:12px 16px;width:fit-content;margin:0 0 22px auto}.card{display:flex;align-items:center;gap:12px;text-align:left;width:100%;max-width:470px;border:1px solid #504238;background:#27231e;border-radius:14px;padding:12px}.card:hover{background:#332b23}.fileIcon{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#4b3528;color:#ffc39f;font:16px monospace}.ftext{flex:1}.ftext small{display:block;margin-top:3px;color:#b5ab9e}.composer{margin:12px auto 62px;width:min(650px,calc(100% - 32px));border:1px solid #3d3a32;border-radius:18px;padding:16px;color:#a49d92}.viewer{display:flex;flex-direction:column;position:fixed;inset:0;z-index:2;background:#171715}.viewer[hidden],[hidden]{display:none!important}.actions{display:flex;align-items:center;gap:5px}details{position:relative}summary{list-style:none;cursor:pointer;display:grid;place-items:center;width:42px;height:42px;font-size:23px;border-radius:11px}summary::-webkit-details-marker{display:none}.menu{position:absolute;right:0;top:48px;min-width:212px;padding:5px;background:#252420;border:1px solid #45423b;border-radius:12px;box-shadow:0 10px 32px #0008;z-index:4}.menu button{width:100%;border:0;border-radius:8px;background:transparent;display:flex;justify-content:space-between;padding:10px 12px;text-align:left}.menu button:hover:not(:disabled){background:#3b352d}.menu button[aria-checked=true]{color:#ffc39f}.stage{flex:1;min-height:0;display:flex;overflow:hidden}iframe{border:0;background:#191816;flex:1;width:100%;min-width:0}pre{flex:1;min-width:0;margin:0;padding:22px;overflow:auto;color:#edd3af;font:13px/1.6 ui-monospace,monospace;tab-size:2}.variant{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;display:flex;align-items:center;white-space:nowrap;gap:10px;padding:4px 6px;border:1px solid #695a4b;border-radius:40px;background:#28241f;box-shadow:0 5px 20px #0007;font-size:12px}.variant button{min-width:32px;border:0;background:#40342b;border-radius:24px;height:30px}.tabs{display:none;gap:6px;padding:6px 12px;border-bottom:1px solid #34332e}.tabs button{border:0;border-radius:8px;padding:8px 12px;background:#292720}.tabs button[aria-selected=true]{background:#4a3428;color:#ffd4b9}body[data-variant=tabs] .tabs{display:flex}body[data-variant=split] .viewer:not(.expanded){left:45%;border-left:1px solid #45423b}body[data-variant=split] .app{width:45%;grid-template-columns:1fr}body[data-variant=split] aside{display:none}.notice{position:fixed;z-index:6;bottom:62px;left:50%;transform:translateX(-50%);background:#f1e6d7;color:#24201c;padding:8px 14px;border-radius:18px}
+@media(max-width:700px){.app{grid-template-columns:1fr}aside{display:none}.messages{padding:18px}body[data-variant=split] .viewer:not(.expanded){left:0;top:34%;border:1px solid #45423b;border-radius:16px 16px 0 0}body[data-variant=split] .app{width:100%}}
+</style>
+<div class="app">
+  <aside><div class="brand">Clodex</div><p class="badge">Прототип · не APK</p><div class="section">Code · текущая сессия</div><div class="selected">Лендинг проекта</div></aside>
+  <main class="chat"><header class="bar"><span></span><strong>Лендинг проекта · Code</strong><span class="badge">Демо</span></header>
+    <div class="messages"><p class="prompt">Сделай небольшую страницу проекта на HTML</p><p>Готово. Открой карточку, чтобы посмотреть страницу или исходный код.</p>
+      <button class="card" id="open"><span class="fileIcon" aria-hidden="true">&lt;/&gt;</span><span class="ftext"><strong>Лендинг проекта</strong><small>index.html · HTML</small></span><span aria-hidden="true">↗</span></button>
+    </div><div class="composer">Сообщение агенту…</div>
+  </main>
+</div>
+<section class="viewer" id="viewer" role="dialog" aria-label="Просмотр HTML" hidden>
+  <header class="bar"><button class="icon" id="close" aria-label="Закрыть">×</button><strong>index.html</strong><div class="actions"><button class="icon" id="expand" aria-label="Развернуть">⤢</button>
+    <details id="details"><summary aria-label="Действия с файлом">⋮</summary><div class="menu">
+      <button data-mode="preview" role="menuitemradio" aria-checked="true">Предпросмотр <span>✓</span></button><button data-mode="code" role="menuitemradio" aria-checked="false">Код <span></span></button>
+      <button disabled title="Макет ничего не публикует">Опубликовать</button><button id="copy">Копировать</button><button id="download">Скачать</button><button id="share" disabled>Поделиться</button>
+    </div></details>
+  </div></header>
+  <div class="tabs" role="tablist" aria-label="Режим просмотра"><button role="tab" data-mode="preview">Предпросмотр</button><button role="tab" data-mode="code">Код</button></div>
+  <div class="stage"><iframe id="preview" title="Предпросмотр index.html" sandbox></iframe><pre id="source" hidden tabindex="0" aria-label="Код index.html"></pre></div>
+</section>
+<div class="variant" aria-label="Варианты прототипа"><button id="prev" aria-label="Предыдущий вариант">←</button><span id="variantName"></span><button id="next" aria-label="Следующий вариант">→</button></div>
+<div class="notice" id="notice" role="status" hidden></div>
+<script>
+const sample = `<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<title>Тихий час</title>
+<style>
+  * { box-sizing:border-box }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:36px 26px 88px;
+    background: radial-gradient(ellipse at 24% 12%,#482c21,transparent 65%),#1c1916; color:#fcf0df; font: 16px system-ui }
+  main { max-width:630px; width:100%; padding:clamp(22px,6vw,64px); border:1px solid #6d4936; border-radius:28px; background:#221b17 }
+  small { color:#efaa87; letter-spacing:.2em; font-size:11px } h1 { font:clamp(40px,10vw,84px)/1 Georgia; margin:.3em 0 }
+  p { color:#d7bba7; max-width:33ch; line-height:1.65; margin-bottom:28px }
+  span { display:inline-block; background:#e69a77; color:#251a13; padding:11px 16px; border-radius:30px; font-size:14px }
+</style>
+<main><small>ЛИЧНЫЙ ПРОЕКТ / 01</small><h1>Тихий час</h1>
+<p>Небольшая страница для заметок, идей и вещей, к которым хочется вернуться.</p><span>Осень · 2026</span></main>
+</html>`;
+const $=id=>document.getElementById(id), viewer=$('viewer'), details=$('details');
+const variants=[['full','На весь экран · как в Claude'],['split','Рядом с чатом'],['tabs','Прямые вкладки']];
+let index=Math.max(0,variants.findIndex(([key])=>key===new URLSearchParams(location.search).get('variant'))), toastTimer;
+function variant(change=0){index=(index+change+variants.length)%variants.length;const [key,label]=variants[index];document.body.dataset.variant=key;$('variantName').textContent='Макет · '+label;viewer.classList.remove('expanded');$('expand').setAttribute('aria-pressed','false');try{history.replaceState(null,'','?variant='+key)}catch{}}
+function mode(name){const code=name==='code';$('preview').hidden=code;$('source').hidden=!code;document.querySelectorAll('[data-mode]').forEach(el=>{const current=el.dataset.mode===name;if(el.getAttribute('role')==='tab')el.setAttribute('aria-selected',current);else{el.setAttribute('aria-checked',current);el.querySelector('span').textContent=current?'✓':''}});details.open=false}
+function show(){viewer.hidden=false;mode('preview');$('close').focus()}
+function close(){details.open=false;viewer.hidden=true;$('open').focus()}
+function notify(text){$('notice').textContent=text;$('notice').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('notice').hidden=true,1800)}
+$('preview').srcdoc=sample;$('source').textContent=sample;variant();
+$('open').onclick=show;$('close').onclick=close;$('prev').onclick=()=>variant(-1);$('next').onclick=()=>variant(1);
+$('expand').onclick=()=>{if(document.body.dataset.variant!=='split')variant(1-index);const on=viewer.classList.toggle('expanded');$('expand').setAttribute('aria-pressed',on);$('expand').setAttribute('aria-label',on?'Вернуть панель':'Развернуть')};
+document.querySelectorAll('[data-mode]').forEach(el=>el.onclick=()=>mode(el.dataset.mode));
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(sample);notify('Код скопирован')}catch{const field=document.createElement('textarea');field.value=sample;viewer.append(field);field.select();const ok=document.execCommand('copy');field.remove();notify(ok?'Код скопирован':'Копирование недоступно в этом браузере')}details.open=false};
+$('download').onclick=()=>{const url=URL.createObjectURL(new Blob([sample],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);details.open=false};
+if(navigator.canShare&&typeof File==='function'){const file=new File([sample],'index.html',{type:'text/html'});if(navigator.canShare({files:[file]})){$('share').disabled=false;$('share').onclick=()=>{navigator.share({files:[file]}).catch(()=>{});details.open=false}}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!viewer.hidden){if(details.open)details.open=false;else close()}if(e.target.matches('input,textarea,[contenteditable],pre'))return;if(e.key==='ArrowLeft')variant(-1);if(e.key==='ArrowRight')variant(1)});
+</script>
+</html>
