@@ -86,6 +86,9 @@ fun HarnessTheme(settings: AppSettings, content: @Composable () -> Unit) {
     val motion = rememberMotion()
     val scheme = (if (dark) darkColorScheme() else lightColorScheme()).copy(
         primary = colors.ac, onPrimary = colors.onAc, background = colors.bg, onBackground = colors.ink,
+        secondary = colors.ac, onSecondary = colors.onAc,
+        secondaryContainer = colors.bb, onSecondaryContainer = colors.bt,
+        error = colors.error, errorContainer = colors.db, onErrorContainer = colors.dt,
         surface = colors.s1, onSurface = colors.ink, onSurfaceVariant = colors.mu, outline = colors.mu,
         outlineVariant = colors.line, surfaceTint = colors.s1, surfaceVariant = colors.s2,
         surfaceContainerLowest = colors.bg, surfaceContainerLow = colors.s1, surfaceContainer = colors.s1,

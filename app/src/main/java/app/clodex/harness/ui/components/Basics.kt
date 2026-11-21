@@ -4,9 +4,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -40,14 +40,27 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,7 +76,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -114,13 +126,28 @@ fun IconBtn(
     circle: Boolean = false, send: Boolean = false, tint: Color? = null, size: Dp = HDim.iconBtn,
 ) {
     val c = H.c
-    val bg = when { send -> c.ac; circle -> c.ac.copy(alpha = 0.14f); else -> Color.Transparent }
-    val fg = tint ?: if (send) c.onAc else if (circle) c.ac else c.ink
-    Box(
-        modifier.size(size).hClick(0.92f, label = desc, onClick = onClick).clip(CircleShape).background(bg)
-            .semantics { contentDescription = desc },
-        contentAlignment = Alignment.Center,
-    ) { Ic(icon, tint = fg) }
+    val button = modifier.size(size).semantics { contentDescription = desc }
+    val glyph: @Composable () -> Unit = {
+        Ic(icon, tint = tint ?: LocalContentColor.current, size = if (size >= 48.dp) 24.dp else 20.dp)
+    }
+    // M3 enforces a 48 dp touch target; compact icon buttons keep their call-site size, as before.
+    CompositionLocalProvider(
+        LocalMinimumInteractiveComponentSize provides if (size >= 48.dp) size else Dp.Unspecified,
+    ) {
+        when {
+            send -> FilledIconButton(
+                onClick = onClick, modifier = button,
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = c.ac, contentColor = c.onAc),
+                content = glyph,
+            )
+            circle -> FilledTonalIconButton(
+                onClick = onClick, modifier = button,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = c.bb, contentColor = c.bt),
+                content = glyph,
+            )
+            else -> IconButton(onClick = onClick, modifier = button, content = glyph)
+        }
+    }
 }
 
 @Composable
@@ -150,40 +177,47 @@ fun Btn(
     icon: HIcon? = null, enabled: Boolean = true, container: Color? = null, tonal: Boolean = false,
 ) {
     val c = H.c
-    val shape = RoundedCornerShape(HDim.pill)
-    val bg = container ?: when {
-        primary -> c.ac
-        tonal -> c.bb
-        else -> Color.Transparent
+    val content: @Composable RowScope.() -> Unit = {
+        if (icon != null) Ic(icon)
+        Text(text, style = H.t.btn, textAlign = TextAlign.Center, maxLines = 1)
     }
-    val fg = when {
-        container != null -> c.bg
-        primary -> c.onAc
-        tonal -> c.bt
-        danger -> c.dt
-        else -> c.ink
-    }
-    Row(
-        modifier.height(48.dp).graphicsLayer { alpha = if (enabled) 1f else 0.45f }
-            .hClick(enabled = enabled, onClick = onClick).clip(shape).background(bg)
-            .then(if (primary || tonal || container != null) Modifier else Modifier.border(1.dp, c.line, shape))
-            .padding(horizontal = 20.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-    ) {
-        if (icon != null) Ic(icon, tint = fg)
-        Text(text, style = H.t.btn, color = fg, textAlign = TextAlign.Center, maxLines = 1)
+    when {
+        container != null -> Button(
+            onClick = onClick, modifier = modifier, enabled = enabled,
+            colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = c.bg),
+            content = content,
+        )
+        primary -> Button(onClick = onClick, modifier = modifier, enabled = enabled, content = content)
+        tonal -> FilledTonalButton(
+            onClick = onClick, modifier = modifier, enabled = enabled,
+            colors = ButtonDefaults.filledTonalButtonColors(containerColor = c.bb, contentColor = c.bt),
+            content = content,
+        )
+        danger -> OutlinedButton(
+            onClick = onClick, modifier = modifier, enabled = enabled,
+            border = BorderStroke(1.dp, c.error),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = c.error),
+            content = content,
+        )
+        else -> OutlinedButton(onClick = onClick, modifier = modifier, enabled = enabled, content = content)
     }
 }
 
 @Composable
 fun HChip(text: String, on: Boolean, mono: Boolean = false, onClick: () -> Unit) {
     val c = H.c
-    val shape = RoundedCornerShape(HDim.chip)
-    Box(
-        Modifier.height(36.dp).hClick(0.92f, role = Role.Tab, onClick = onClick).clip(shape)
-            .semantics { selected = on }.background(if (on) c.ac.copy(alpha = 0.16f) else c.s2).padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center,
-    ) { Text(text, style = if (mono) H.t.mono13 else H.t.chip13, color = if (on) c.ac else c.mu) }
+    FilterChip(
+        selected = on,
+        onClick = onClick,
+        label = { Text(text, style = if (mono) H.t.mono13 else H.t.chip13, maxLines = 1) },
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = Color.Transparent,
+            labelColor = c.mu,
+            selectedContainerColor = c.bb,
+            selectedLabelColor = c.bt,
+        ),
+        border = if (on) null else BorderStroke(1.dp, c.line),
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -192,19 +226,16 @@ fun Seg(
     options: List<String>, selected: String, onSelect: (String) -> Unit, modifier: Modifier = Modifier,
     pad: PaddingValues = PaddingValues(start = 20.dp, top = 8.dp, end = 20.dp, bottom = 12.dp),
 ) {
-    FlowRow(modifier.fillMaxWidth().padding(pad), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    // M3 chips carry a 48 dp touch target around the 32 dp container, so rows need no extra gap.
+    FlowRow(modifier.fillMaxWidth().padding(pad), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
         options.forEach { o -> HChip(o, o == selected) { onSelect(o) } }
     }
 }
 
 @Composable
 fun Sw(on: Boolean, modifier: Modifier = Modifier, onToggle: (() -> Unit)? = null) {
-    val c = H.c; val m = LocalMotion.current
-    val x by animateDpAsState(if (on) 23.dp else 3.dp, m.spec(150, Ease), label = "sw")
-    val click = if (onToggle != null) Modifier.hClick(role = Role.Switch, onClick = onToggle) else Modifier
-    Box(modifier.size(52.dp, 32.dp).then(click).clip(RoundedCornerShape(16.dp)).background(if (on) c.ac else c.s2)) {
-        Box(Modifier.offset(x = x, y = 3.dp).size(26.dp).clip(CircleShape).background(if (on) c.onAc else c.mu))
-    }
+    val change: ((Boolean) -> Unit)? = onToggle?.let { toggle -> { _: Boolean -> toggle() } }
+    Switch(checked = on, onCheckedChange = change, modifier = modifier)
 }
 
 @Composable
@@ -247,10 +278,14 @@ fun Bdg(text: String, kind: BdgKind = BdgKind.Blue, modifier: Modifier = Modifie
 @Composable
 fun Fab(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = H.c
-    Row(
-        modifier.height(56.dp).hClick(onClick = onClick).clip(RoundedCornerShape(HDim.pill)).background(c.ac).padding(horizontal = 28.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) { Ic(HIcon.Plus, tint = c.onAc); Text(text, style = H.t.fab, color = c.onAc) }
+    ExtendedFloatingActionButton(
+        text = { Text(text, style = H.t.fab) },
+        icon = { Ic(HIcon.Plus) },
+        onClick = onClick,
+        modifier = modifier,
+        containerColor = c.ac,
+        contentColor = c.onAc,
+    )
 }
 
 /** Padding 8/12/12 and gap 10 — the prototype's .dock. */
