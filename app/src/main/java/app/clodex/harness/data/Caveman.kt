@@ -1,8 +1,10 @@
 package app.clodex.harness.data
 
 /*
- * Reply-style instructions adapted from Caveman by Julius Brussee (MIT),
+ * Reply-style instructions adapted from Caveman by Julius Brussee,
  * https://github.com/JuliusBrussee/caveman — itself adapted for AndroidHarness.
+ * Upstream is Apache-2.0 since 3.0.0; skill text from before 3.0.0 remains MIT.
+ * See docs/third-party.md and licenses/caveman-NOTICE.txt.
  * Style only: the instructions never grant permissions or new tools.
  */
 

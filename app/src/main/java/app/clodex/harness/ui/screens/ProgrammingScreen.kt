@@ -81,7 +81,7 @@ fun ProgrammingScreen() {
                     {
                         Li(onClick = { uri.openUri(CAVEMAN_SOURCE) }) {
                             IconPlate(HIcon.Docp)
-                            Titles("Источник · MIT", "JuliusBrussee/caveman, адаптация для Clodex")
+                            Titles("Источник · Apache 2.0", "JuliusBrussee/caveman, адаптация для Clodex")
                             Ic(HIcon.Ch, tint = H.c.mu, size = 16.dp)
                         }
                     },
