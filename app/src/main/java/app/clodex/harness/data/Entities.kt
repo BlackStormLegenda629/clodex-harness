@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-object Src { const val BUILTIN = "Встроенный"; const val MINE = "Мой"; const val GITHUB = "GitHub" }
+object Src { const val BUILTIN = "Встроенный"; const val MINE = "Мой"; const val GITHUB = "GitHub"; const val CAVEMAN = "Caveman" }
 object ConStatus { const val ON = "on"; const val OFF = "off"; const val WARN = "warn"; const val NEW = "new" }
 object SesStatus { const val WAIT = "wait"; const val RUN = "run"; const val DONE = "done" }
 object Perm { const val PENDING = 0; const val ALLOWED = 1; const val DENIED = 2 }

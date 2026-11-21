@@ -104,7 +104,7 @@ class VmFactory(private val c: AppContainer) : ViewModelProvider.Factory {
         ProjectsViewModel::class.java -> ProjectsViewModel(c, extras.createSavedStateHandle())
         ArtifactsViewModel::class.java -> ArtifactsViewModel(c)
         CodeViewModel::class.java -> c.codeVm
-        SkillsViewModel::class.java -> SkillsViewModel(c.skillRepo, c.skillFetcher, c.toasts)
+        SkillsViewModel::class.java -> SkillsViewModel(c.skillRepo, c.skillFetcher, c.toasts, c.caveman)
         ConnectorsViewModel::class.java -> ConnectorsViewModel(c.connectorRepo, c.mcp, c.toasts)
         SettingsViewModel::class.java -> SettingsViewModel(c)
         else -> error("Unknown ViewModel: $modelClass")

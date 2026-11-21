@@ -2,6 +2,8 @@ package app.clodex.harness.ui.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.clodex.harness.data.CavemanIntensity
+import app.clodex.harness.data.CavemanRepository
 import app.clodex.harness.data.SkillEntity
 import app.clodex.harness.data.SkillFetcher
 import app.clodex.harness.data.SkillParser
@@ -18,8 +20,19 @@ class SkillsViewModel(
     private val repo: SkillRepository,
     private val fetcher: SkillFetcher,
     private val toasts: ToastBus,
+    private val caveman: CavemanRepository,
 ) : ViewModel() {
     val skills: StateFlow<List<SkillEntity>> = repo.skills.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun installCaveman() = viewModelScope.launch { caveman.install() }
+
+    fun uninstallCaveman() = viewModelScope.launch { caveman.uninstall() }
+
+    fun setCavemanIntensity(intensity: CavemanIntensity) = viewModelScope.launch { caveman.setIntensity(intensity) }
+
+    fun toggleCavemanSkill(id: String) = viewModelScope.launch {
+        repo.get(id)?.let { caveman.setSkillEnabled(id, !it.enabled) }
+    }
 
     private suspend fun nextSort(): Long = (repo.skills.first().maxOfOrNull { it.sortKey } ?: -1L) + 1
 

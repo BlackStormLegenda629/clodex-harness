@@ -5,16 +5,27 @@ import app.clodex.harness.data.mcp.*
 import app.clodex.harness.ui.vm.ConnectorsViewModel
 import app.clodex.harness.ui.vm.SkillsViewModel
 import app.clodex.harness.util.ToastBus
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 class SkillsViewModelTest {
     @get:Rule val main = MainDispatcherRule()
+    @get:Rule val temporaryFolder = TemporaryFolder()
     private val toasts = ToastBus()
+    private val settings by lazy {
+        SettingsRepository(PreferenceDataStoreFactory.create(scope = CoroutineScope(Dispatchers.IO + SupervisorJob())) {
+            temporaryFolder.root.resolve("settings.preferences_pb")
+        })
+    }
 
     private fun vm(fetcher: FakeFetcher = FakeFetcher(Result.failure(ClaudeException("x"))), repo: FakeSkillRepo = FakeSkillRepo()) =
-        SkillsViewModel(repo, fetcher, toasts) to repo
+        SkillsViewModel(repo, fetcher, toasts, CavemanRepository(repo, settings)) to repo
 
     @Test fun createManualSkill_addsEnabledMineSkillWithDerivedDescription() {
         val (vm, repo) = vm()

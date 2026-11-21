@@ -120,6 +120,8 @@ data class AppSettings(
     val style: AppStyle = AppStyle.Material,
     val progressStyle: ProgressStyle = ProgressStyle.Straight,
     val scrollBlur: Boolean = false,
+    val cavemanInstalled: Boolean = false,
+    val cavemanIntensity: CavemanIntensity = CavemanIntensity.FULL,
 ) {
     fun on(key: String): Boolean = toggles[key] ?: false
 
@@ -168,6 +170,8 @@ object K {
     val alwaysAllowed = stringPreferencesKey("alwaysAllowed")
     val workDirs = stringPreferencesKey("workDirs")
     val seeded = booleanPreferencesKey("seeded")
+    val cavemanInstalled = booleanPreferencesKey("cavemanInstalled")
+    val cavemanIntensity = stringPreferencesKey("cavemanIntensity")
     fun toggle(name: String) = booleanPreferencesKey("tg_$name")
 }
 
@@ -211,6 +215,8 @@ class SettingsRepository(private val store: DataStore<Preferences>) : CodePrefs 
                 ?.map { l -> l.split('\t').let { WorkDir(it[0], it.getOrElse(1) { "git" }) } } ?: d.workDirs,
             seeded = p[K.seeded] ?: false,
             toggles = TOGGLE_DEFAULTS.mapValues { (k, v) -> p[K.toggle(k)] ?: v },
+            cavemanInstalled = p[K.cavemanInstalled] ?: d.cavemanInstalled,
+            cavemanIntensity = CavemanIntensity.entries.firstOrNull { it.name == p[K.cavemanIntensity] } ?: d.cavemanIntensity,
         )
     }
 

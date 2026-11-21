@@ -79,11 +79,17 @@ class AppContainer(private val app: Application) {
     } }
     val provider: RoutedProviderClient by lazy { RoutedProviderClient(settings, http) }
     internal val scheduledProvider by lazy { RoutedProviderClient(settings, newScheduledHttp()) }
-    private val codeAgent by lazy { DefaultCodeAgent(app, http, settings, provider, db::memoryFor, { skillInstructions(skillRepo.skills.first()) }) }
+    private val codeAgent by lazy {
+        DefaultCodeAgent(app, http, settings, provider, db::memoryFor, {
+            val s = settings.flow.first()
+            skillInstructions(skillRepo.skills.first(), if (s.cavemanInstalled) Caveman.prompt(s.cavemanIntensity) else "")
+        })
+    }
     val skillFetcher: SkillFetcher by lazy { GitHubSkillFetcher(http, settings) }
     val providerChecker: ProviderChecker by lazy { ProviderChecker(http) }
 
     val skillRepo: SkillRepository by lazy { RoomSkillRepository(db.skills()) }
+    val caveman by lazy { CavemanRepository(skillRepo, settings) }
     val connectorRepo: ConnectorRepository by lazy { RoomConnectorRepository(db.connectors()) }
     val mcp: McpRepository by lazy { McpRepository(DataStoreMcpConfigRepository(app.connectorSettingsStore), KtorMcpGateway(mcpHttp), McpOAuth(mcpHttp)) }
     val sessionRepo: SessionRepository by lazy { RoomSessionRepository(db.sessions(), db.workspaces()) }
