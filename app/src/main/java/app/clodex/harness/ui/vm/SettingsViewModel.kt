@@ -1,5 +1,6 @@
 package app.clodex.harness.ui.vm
 
+import android.net.Uri
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,6 +9,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.createSavedStateHandle
 import app.clodex.harness.AppContainer
 import app.clodex.harness.data.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +21,32 @@ data class ModelFetch(val loading: Boolean = false, val models: List<String> = e
 
 class SettingsViewModel(private val c: AppContainer) : ViewModel() {
     private val repo = c.settings
+    private val _backupBusy = MutableStateFlow(false)
+    val backupBusy = _backupBusy.asStateFlow()
+
+    fun exportBackup(uri: Uri) = backupOperation("Не удалось сохранить копию") {
+        c.backups.exportTo(uri)
+        "Резервная копия сохранена"
+    }
+
+    fun importBackup(uri: Uri) = backupOperation("Не удалось импортировать копию") {
+        if (c.backups.importFrom(uri)) "Данные из копии добавлены"
+        else "Данные добавлены, но настройки сохранить не удалось"
+    }
+
+    private fun backupOperation(error: String, action: suspend () -> String) = viewModelScope.launch {
+        if (_backupBusy.value) return@launch
+        _backupBusy.value = true
+        try {
+            c.toasts.show(action())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            c.toasts.show(error)
+        } finally {
+            _backupBusy.value = false
+        }
+    }
     val settings: StateFlow<AppSettings> = repo.flow.stateIn(viewModelScope, SharingStarted.Eagerly, c.initialSettings)
     val mcpConfigs = c.mcp.configs.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
     fun revokeMcp(grant: app.clodex.harness.data.mcp.McpGrant) = viewModelScope.launch {

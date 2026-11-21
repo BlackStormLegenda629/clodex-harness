@@ -1,6 +1,7 @@
 package app.clodex.harness.ui.screens
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -15,9 +16,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -269,11 +275,32 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     )
                 }
                 "priv" -> {
+                    val busy by sv.backupBusy.collectAsStateWithLifecycle()
+                    var pending by rememberSaveable { mutableStateOf<String?>(null) }
+                    val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) {
+                        if (it != null) sv.exportBackup(it)
+                    }
+                    val load = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+                        pending = it?.toString()
+                    }
+                    pending?.let { uri ->
+                        AlertDialog(
+                            onDismissRequest = { pending = null },
+                            title = { Text("Импортировать копию?") },
+                            text = { Text("Данные будут добавлены к существующим. Повторный импорт создаст дубликаты. Задания из копии не запустятся.") },
+                            confirmButton = { TextButton(onClick = { pending = null; sv.importBackup(Uri.parse(uri)) }) { Text("Импортировать") } },
+                            dismissButton = { TextButton(onClick = { pending = null }) { Text("Отмена") } },
+                        )
+                    }
                     GrpOf(
                         { ActionRow("Общая память", icon = HIcon.Lock) { nav.push("memory/0") } },
+                        { ActionRow("Экспорт данных", icon = HIcon.Dl) { if (!busy) save.launch("clodex-backup.json") } },
+                        { ActionRow("Импорт данных", icon = HIcon.Docp) { if (!busy) load.launch(arrayOf("application/json", "text/plain")) } },
                     )
+                    SheetNote("Копия не шифруется и может содержать личные данные. Токены, вложения и доступ к папкам не переносятся.", Modifier.padding(horizontal = 20.dp))
+                    if (busy) SheetNote("Обработка резервной копии…", Modifier.padding(horizontal = 20.dp))
                     Box(Modifier.fillMaxWidth().padding(20.dp)) {
-                        Btn("Удалить все данные", { vms.app.open(SheetKind.WipeConfirm) }, Modifier.fillMaxWidth(), danger = true, icon = HIcon.Trash)
+                        Btn("Удалить все данные", { if (!busy) vms.app.open(SheetKind.WipeConfirm) }, Modifier.fillMaxWidth(), danger = true, icon = HIcon.Trash)
                     }
                 }
                 "about" -> {

@@ -3,6 +3,7 @@ package app.clodex.harness.data
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 object Src { const val BUILTIN = "Встроенный"; const val MINE = "Мой"; const val GITHUB = "GitHub"; const val CAVEMAN = "Caveman" }
 object ConStatus { const val ON = "on"; const val OFF = "off"; const val WARN = "warn"; const val NEW = "new" }
@@ -11,6 +12,7 @@ object Perm { const val PENDING = 0; const val ALLOWED = 1; const val DENIED = 2
 object Role { const val USER = "user"; const val ASSISTANT = "assistant"; const val ERROR = "error" }
 
 @Entity(tableName = "chats")
+@Serializable
 data class ChatEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
@@ -19,6 +21,7 @@ data class ChatEntity(
 )
 
 @Entity(tableName = "messages", indices = [Index("chatId")])
+@Serializable
 data class MessageEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val chatId: Long,
@@ -34,6 +37,7 @@ data class MessageEntity(
 )
 
 @Entity(tableName = "projects")
+@Serializable
 data class ProjectEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
@@ -50,6 +54,7 @@ data class ProjectEntity(
 fun ProjectEntity.fileList(): List<String> = files.split('\n').filter { it.isNotBlank() }
 
 @Entity(tableName = "artifacts")
+@Serializable
 data class ArtifactEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
@@ -61,6 +66,7 @@ data class ArtifactEntity(
 )
 
 @Entity(tableName = "sessions")
+@Serializable
 data class SessionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
@@ -91,6 +97,7 @@ object ChangeStatus { const val PENDING = "pending"; const val APPLIED = "applie
 
 /** A completed, factual step of a Code session (tool call, apply, PR, error). */
 @Entity(tableName = "session_events", indices = [Index("sessionId")])
+@Serializable
 data class SessionEventEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val sessionId: Long,
@@ -103,6 +110,7 @@ data class SessionEventEntity(
 
 /** A file change produced by the agent; [beforeText] is null for a new file. */
 @Entity(tableName = "session_changes", indices = [Index("sessionId")])
+@Serializable
 data class SessionChangeEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val sessionId: Long,
@@ -116,6 +124,7 @@ data class SessionChangeEntity(
 )
 
 @Entity(tableName = "session_messages", indices = [Index("sessionId")])
+@Serializable
 data class SessionMessageEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val sessionId: Long,
@@ -125,6 +134,7 @@ data class SessionMessageEntity(
 )
 
 @Entity(tableName = "workspaces")
+@Serializable
 data class WorkspaceEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
@@ -134,6 +144,7 @@ data class WorkspaceEntity(
 )
 
 @Entity(tableName = "skills")
+@Serializable
 data class SkillEntity(
     @PrimaryKey val id: String,
     val name: String,
@@ -150,6 +161,7 @@ data class SkillEntity(
 )
 
 @Entity(tableName = "connectors")
+@Serializable
 data class ConnectorEntity(
     @PrimaryKey val id: String,
     val name: String,

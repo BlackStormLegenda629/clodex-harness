@@ -2,14 +2,17 @@ package app.clodex.harness.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
 internal const val MEMORY_NOTE_LIMIT = 1000
 
 @Entity(tableName = "memory_notes", indices = [Index("scope")])
+@Serializable
 data class MemoryNote(val scope: Long, val text: String, @PrimaryKey(autoGenerate = true) val id: Long = 0)
 
 @Dao
 interface MemoryDao {
+    @Query("SELECT * FROM memory_notes ORDER BY id") suspend fun listAll(): List<MemoryNote>
     @Query("SELECT * FROM memory_notes WHERE scope = :scope ORDER BY id DESC")
     fun observe(scope: Long): Flow<List<MemoryNote>>
 

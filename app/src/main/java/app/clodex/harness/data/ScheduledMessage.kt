@@ -2,6 +2,7 @@ package app.clodex.harness.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
 enum class ScheduleRepeat(val label: String, val interval: Long) {
     Once("Один раз", 0), Hourly("Каждый час", 3_600_000), Daily("Каждые 24 часа", 86_400_000);
@@ -11,6 +12,7 @@ enum class ScheduleRepeat(val label: String, val interval: Long) {
 }
 
 @Entity(tableName = "scheduled_messages")
+@Serializable
 data class ScheduledMessage(
     @PrimaryKey val id: String, val chatId: Long, val projectId: Long?, val providerId: String,
     val endpoint: String, val openAi: Boolean, val model: String, val text: String, val repeat: String,

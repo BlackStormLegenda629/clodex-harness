@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.*
 
@@ -181,6 +182,23 @@ interface CodePrefs {
 }
 
 class SettingsRepository(private val store: DataStore<Preferences>) : CodePrefs {
+    private val backupStrings = listOf(K.theme, K.style, K.progressStyle, K.accent, K.textSize, K.uiFont, K.codeFont)
+    private val backupBooleans = listOf(K.scrollBlur, K.toggle("n1"), K.toggle("n2"), K.toggle("n3"))
+
+    internal suspend fun backupPreferences(): Map<String, String> {
+        val p = store.data.first()
+        return buildMap {
+            for (key in backupStrings) p[key]?.let { put(key.name, it) }
+            for (key in backupBooleans) p[key]?.let { put(key.name, it.toString()) }
+        }
+    }
+
+    internal suspend fun restoreBackupPreferences(values: Map<String, String>) {
+        store.edit { p ->
+            for (key in backupStrings) values[key.name]?.takeIf { it.length <= 128 }?.let { p[key] = it }
+            for (key in backupBooleans) values[key.name]?.toBooleanStrictOrNull()?.let { p[key] = it }
+        }
+    }
     val flow: Flow<AppSettings> = store.data.map { p ->
         val d = AppSettings()
         val providers = decodeProviders(p[K.providers]) ?: migrateProviders(p)
