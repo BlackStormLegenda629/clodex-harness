@@ -34,6 +34,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -248,7 +249,7 @@ fun HarnessApp(container: AppContainer) {
     }
     val navController = rememberNavController()
     val route by navController.currentBackStackEntryAsState()
-    var dismissedUpdate by rememberSaveable { mutableStateOf(0L) }
+    var dismissedUpdate by rememberSaveable { mutableLongStateOf(0L) }
     val nav = remember(navController) { Nav(navController, vms.app) }
     val m = LocalMotion.current
     val shift = with(LocalDensity.current) { 28.dp.roundToPx() }

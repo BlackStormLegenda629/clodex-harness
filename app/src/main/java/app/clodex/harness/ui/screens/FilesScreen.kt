@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,8 +34,9 @@ fun FilesScreen(uriArg: String) {
     val app = LocalVms.current.app
     val uri = remember(uriArg) { Uri.parse(Uri.decode(uriArg)) }
     val title = remember(uri) { Saf.name(ctx, uri) }
-    val entries by produceState(emptyList<Saf.Entry>(), uri) {
-        value = withContext(Dispatchers.IO) { Saf.children(ctx, uri) }
+    var entries by remember(uri) { mutableStateOf(emptyList<Saf.Entry>()) }
+    LaunchedEffect(uri) {
+        entries = withContext(Dispatchers.IO) { Saf.children(ctx, uri) }
     }
     ScreenFrame {
         Header(

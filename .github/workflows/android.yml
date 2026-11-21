@@ -22,4 +22,4 @@ jobs:
           SDKMANAGER="${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager"
           "$SDKMANAGER" 'platforms;android-35'
       - name: Build and test
-        run: bash gradlew assembleDebug testDebugUnitTest
+        run: bash gradlew assembleDebug testDebugUnitTest lintDebug
