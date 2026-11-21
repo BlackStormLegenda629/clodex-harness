@@ -71,6 +71,7 @@ import app.clodex.harness.util.inlineMd
 import app.clodex.harness.util.parseBlocks
 import app.clodex.harness.util.rememberDownloader
 import app.clodex.harness.util.rememberSpeech
+import app.clodex.harness.util.rememberReplySpeech
 
 @Composable
 fun GearBtn() {
@@ -127,6 +128,7 @@ fun androidx.compose.foundation.layout.ColumnScope.ChatBody(onPrefill: ((String)
     val initialCount = remember(chatId) { messages.size }
     val state = rememberLazyListState()
     val download = rememberDownloader { r -> toasts.show(r.fold({ "Скачано: $it" }, { it.message ?: "Не удалось сохранить" })) }
+    val (speakingId, speak) = rememberReplySpeech(chatId) { toasts.show("Не удалось озвучить ответ") }
 
     LaunchedEffect(chatId, total, draft?.text?.length) { if (total > 0) state.animateScrollToItem(total - 1) }
 
@@ -149,7 +151,7 @@ fun androidx.compose.foundation.layout.ColumnScope.ChatBody(onPrefill: ((String)
             val art = m.artifactId?.let { id -> artifacts.firstOrNull { it.id == id } }
             Box(if (i >= initialCount - 2) Modifier.rise(0, 300) else Modifier) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MessageItem(m, art, onOpen = { nav.artifact(it.id) }, onDownload = { a -> download(a.name, a.content) }, onThinking = { summary = it }, onHtmlPreview = { replyHtml = it })
+                    MessageItem(m, art, onOpen = { nav.artifact(it.id) }, onDownload = { a -> download(a.name, a.content) }, onThinking = { summary = it }, onHtmlPreview = { replyHtml = it }, onSpeak = { speak(m.id, m.text) }, speaking = speakingId == m.id)
                     if (!showDraft || i != messages.lastIndex) promptByReply[m.id]?.let { ConnectorSuggestions(it, usableConnectors) }
                 }
             }
@@ -284,6 +286,7 @@ fun MessageItem(
     m: MessageEntity, artifact: ArtifactEntity?, onOpen: (ArtifactEntity) -> Unit, onDownload: (ArtifactEntity) -> Unit,
     onThinking: (ThinkingPresentation) -> Unit = {},
     onHtmlPreview: ((String) -> Unit)? = null,
+    onSpeak: () -> Unit = {}, speaking: Boolean = false,
 ) {
     val c = H.c; val t = H.t
     if (m.role == Role.USER) {
@@ -305,7 +308,12 @@ fun MessageItem(
                 val st = remember(m.id) { ThinkingPresentation(m.chatId, thinking = false, seconds = m.thinkingSeconds, steps = ThinkingCodec.decode(m.thinkingSteps)) }
                 ThinkingRow(st, onOpen = { onThinking(st) })
             }
-            if (m.role == Role.ERROR) Text(m.text, style = t.msgAi, color = c.warn) else AssistantBlocks(m.text, onHtmlPreview.takeUnless { artifact?.kind == "HTML" })
+            if (m.role == Role.ERROR) Text(m.text, style = t.msgAi, color = c.warn) else {
+                Row(verticalAlignment = Alignment.Top) {
+                    Box(Modifier.weight(1f)) { AssistantBlocks(m.text, onHtmlPreview.takeUnless { artifact?.kind == "HTML" }) }
+                    IconBtn(HIcon.Mic, if (speaking) "Остановить озвучку" else "Озвучить ответ", onSpeak, size = 32.dp)
+                }
+            }
             if (artifact != null) ArtifactCard(artifact, onOpen = { onOpen(artifact) }, onDownload = { onDownload(artifact) })
         }
     }

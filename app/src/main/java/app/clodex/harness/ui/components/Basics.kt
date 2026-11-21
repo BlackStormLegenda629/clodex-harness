@@ -1,5 +1,8 @@
 package app.clodex.harness.ui.components
 
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -128,6 +131,7 @@ fun IconBtn(
     circle: Boolean = false, send: Boolean = false, tint: Color? = null, size: Dp = HDim.iconBtn,
 ) {
     val c = H.c
+    val haptic = LocalHapticFeedback.current
     val button = modifier.size(size).semantics { contentDescription = desc }
     val glyph: @Composable () -> Unit = {
         Ic(icon, tint = tint ?: LocalContentColor.current, size = if (size >= 48.dp) 24.dp else 20.dp)
@@ -138,7 +142,7 @@ fun IconBtn(
     ) {
         when {
             send -> FilledIconButton(
-                onClick = onClick, modifier = button,
+                onClick = { haptic.performHapticFeedback(HapticPolicy.typeFor("send")); onClick() }, modifier = button,
                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = c.ac, contentColor = c.onAc),
                 content = glyph,
             )
@@ -150,6 +154,10 @@ fun IconBtn(
             else -> IconButton(onClick = onClick, modifier = button, content = glyph)
         }
     }
+}
+
+internal object HapticPolicy {
+    fun typeFor(action: String) = if (action == "toggle") HapticFeedbackType.TextHandleMove else HapticFeedbackType.LongPress
 }
 
 @Composable
@@ -179,6 +187,8 @@ fun Btn(
     icon: HIcon? = null, enabled: Boolean = true, container: Color? = null, tonal: Boolean = false,
 ) {
     val c = H.c
+    val haptic = LocalHapticFeedback.current
+    val confirm = { haptic.performHapticFeedback(HapticPolicy.typeFor("confirm")); onClick() }
     val content: @Composable RowScope.() -> Unit = {
         if (icon != null) Ic(icon)
         Text(text, style = H.t.btn, textAlign = TextAlign.Center, maxLines = 1)
@@ -189,7 +199,7 @@ fun Btn(
             colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = c.bg),
             content = content,
         )
-        primary -> Button(onClick = onClick, modifier = modifier, enabled = enabled, content = content)
+        primary -> Button(onClick = confirm, modifier = modifier, enabled = enabled, content = content)
         // Tonal is the default emphasis in Material You; `tonal` stays as a call-site-compatible alias.
         tonal || !danger -> FilledTonalButton(
             onClick = onClick, modifier = modifier, enabled = enabled,
@@ -197,7 +207,7 @@ fun Btn(
             content = content,
         )
         danger -> OutlinedButton(
-            onClick = onClick, modifier = modifier, enabled = enabled,
+            onClick = confirm, modifier = modifier, enabled = enabled,
             border = BorderStroke(1.dp, c.error),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = c.error),
             content = content,
