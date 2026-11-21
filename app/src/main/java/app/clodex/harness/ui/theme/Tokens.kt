@@ -91,6 +91,9 @@ val Accents = listOf(
     Accent("Фиолетовый", Color(0xFF5F5082), Color(0xFFB8A9D8)),
 )
 
+/** Material You takes its accent from the system wallpaper, so the manual picker is hidden there. */
+fun manualAccentAvailable(style: AppStyle): Boolean = style != AppStyle.Material
+
 fun colorsFor(dark: Boolean, accent: Accent, style: AppStyle = AppStyle.Classic): HColors =
     when (style) {
         AppStyle.Classic -> (if (dark) DarkBase else LightBase).copy(ac = if (dark) accent.dark else accent.light)

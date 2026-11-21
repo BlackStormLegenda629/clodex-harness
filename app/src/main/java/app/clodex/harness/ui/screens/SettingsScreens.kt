@@ -41,6 +41,7 @@ import app.clodex.harness.ui.theme.Accents
 import app.clodex.harness.ui.theme.CodeFontCatalog
 import app.clodex.harness.ui.theme.H
 import app.clodex.harness.ui.theme.UiFontCatalog
+import app.clodex.harness.ui.theme.manualAccentAvailable
 import app.clodex.harness.ui.vm.SheetKind
 import app.clodex.harness.ui.vm.AppTab
 
@@ -238,20 +239,30 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                 }
                 "look" -> {
                     Sg("Стиль интерфейса")
-                    Seg(AppStyle.entries.map { it.name }, s.style.name, { sv.set(K.style, it) }, pad = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp))
+                    val styleLabels = linkedMapOf(
+                        "Классика" to AppStyle.Classic,
+                        "Студия" to AppStyle.Studio,
+                        "Material You" to AppStyle.Material,
+                    )
+                    val styleLabel = styleLabels.entries.firstOrNull { it.value == s.style }?.key ?: "Material You"
+                    Seg(styleLabels.keys.toList(), styleLabel, { sv.set(K.style, styleLabels.getValue(it).name) }, pad = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp))
                     Sg("Тема")
                     Seg(listOf("Авто", "Светлая", "Тёмная"), s.theme, { sv.set(K.theme, it) }, pad = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp))
                     Sg("Цвет акцента")
-                    Row(Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        Accents.forEach { a ->
-                            val on = a.name == s.accent
-                            val col = if (H.c.dark) a.dark else a.light
-                            Box(
-                                Modifier.size(44.dp).hClick(0.92f, role = Role.RadioButton, label = a.name) { sv.set(K.accent, a.name) }
-                                    .clip(CircleShape).background(col).border(if (on) 3.dp else 0.dp, if (on) H.c.ink else col, CircleShape),
-                                contentAlignment = Alignment.Center,
-                            ) { if (on) Ic(HIcon.Ck, tint = H.c.onAc) }
+                    if (manualAccentAvailable(s.style)) {
+                        Row(Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                            Accents.forEach { a ->
+                                val on = a.name == s.accent
+                                val col = if (H.c.dark) a.dark else a.light
+                                Box(
+                                    Modifier.size(44.dp).hClick(0.92f, role = Role.RadioButton, label = a.name) { sv.set(K.accent, a.name) }
+                                        .clip(CircleShape).background(col).border(if (on) 3.dp else 0.dp, if (on) H.c.ink else col, CircleShape),
+                                    contentAlignment = Alignment.Center,
+                                ) { if (on) Ic(HIcon.Ck, tint = H.c.onAc) }
+                            }
                         }
+                    } else {
+                        SheetNote("Цвета берутся из обоев на Android 12+. На более старых версиях используется палитра Material You.", Modifier.padding(horizontal = 20.dp))
                     }
                     Sg("Размер текста")
                     Seg(listOf("Мелкий", "Обычный", "Крупный"), s.textSize, { sv.set(K.textSize, it) }, pad = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp))
