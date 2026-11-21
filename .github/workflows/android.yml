@@ -18,6 +18,8 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - name: Install Android SDK 35
-        run: sdkmanager 'platforms;android-35'
+        run: |
+          SDKMANAGER="${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager"
+          "$SDKMANAGER" 'platforms;android-35'
       - name: Build and test
         run: bash gradlew assembleDebug testDebugUnitTest
