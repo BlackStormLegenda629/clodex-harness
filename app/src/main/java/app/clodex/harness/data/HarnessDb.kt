@@ -51,6 +51,8 @@ interface ChatDao {
     @Query("SELECT * FROM chats WHERE id = :id") suspend fun get(id: Long): ChatEntity?
     @Query("SELECT * FROM chats ORDER BY id DESC LIMIT 1") suspend fun getNewest(): ChatEntity?
     @Query("SELECT * FROM chats WHERE projectId = :pid ORDER BY id DESC") fun observeByProject(pid: Long): Flow<List<ChatEntity>>
+    @Query("SELECT * FROM chats WHERE title LIKE '%' || :q || '%' COLLATE NOCASE ORDER BY id DESC LIMIT 50")
+    suspend fun searchByTitle(q: String): List<ChatEntity>
     @Insert suspend fun insert(c: ChatEntity): Long
     @Query("UPDATE chats SET projectId = :projectId WHERE id = :id AND (:projectId IS NULL OR EXISTS(SELECT 1 FROM projects WHERE id = :projectId)) AND NOT EXISTS(SELECT 1 FROM scheduled_messages WHERE chatId = :id AND state = 'running')")
     suspend fun assignProject(id: Long, projectId: Long?): Int
@@ -62,6 +64,8 @@ interface ChatDao {
 interface MessageDao {
     @Query("SELECT * FROM messages WHERE chatId = :chatId ORDER BY id") fun observe(chatId: Long): Flow<List<MessageEntity>>
     @Query("SELECT * FROM messages WHERE chatId = :chatId ORDER BY id") suspend fun list(chatId: Long): List<MessageEntity>
+    @Query("SELECT * FROM messages WHERE text LIKE '%' || :q || '%' COLLATE NOCASE ORDER BY chatId, id LIMIT 200")
+    suspend fun search(q: String): List<MessageEntity>
     @Insert suspend fun insert(m: MessageEntity): Long
     @Query("DELETE FROM messages WHERE id = :id") suspend fun delete(id: Long)
 }
@@ -82,6 +86,8 @@ interface ProjectDao {
 interface ArtifactDao {
     @Query("SELECT * FROM artifacts ORDER BY id DESC") fun observeAll(): Flow<List<ArtifactEntity>>
     @Query("SELECT * FROM artifacts WHERE id = :id") fun observe(id: Long): Flow<ArtifactEntity?>
+    @Query("SELECT * FROM artifacts WHERE name LIKE '%' || :q || '%' COLLATE NOCASE OR content LIKE '%' || :q || '%' COLLATE NOCASE ORDER BY id DESC LIMIT 100")
+    suspend fun search(q: String): List<ArtifactEntity>
     @Insert suspend fun insert(a: ArtifactEntity): Long
 }
 
@@ -91,6 +97,10 @@ interface SessionDao {
     @Query("SELECT * FROM sessions WHERE id = :id") fun observe(id: Long): Flow<SessionEntity?>
     @Query("SELECT * FROM sessions WHERE id = :id") suspend fun get(id: Long): SessionEntity?
     @Query("SELECT * FROM sessions WHERE projectId = :pid ORDER BY id DESC") fun observeByProject(pid: Long): Flow<List<SessionEntity>>
+    @Query("SELECT * FROM sessions WHERE title LIKE '%' || :q || '%' COLLATE NOCASE OR summary LIKE '%' || :q || '%' COLLATE NOCASE OR diff LIKE '%' || :q || '%' COLLATE NOCASE ORDER BY id DESC LIMIT 100")
+    suspend fun search(q: String): List<SessionEntity>
+    @Query("SELECT * FROM session_changes WHERE path LIKE '%' || :q || '%' COLLATE NOCASE OR afterText LIKE '%' || :q || '%' COLLATE NOCASE ORDER BY id DESC LIMIT 200")
+    suspend fun searchChanges(q: String): List<SessionChangeEntity>
     @Insert suspend fun insert(s: SessionEntity): Long
     @Update suspend fun update(s: SessionEntity)
     @Query("SELECT * FROM session_messages WHERE sessionId = :id ORDER BY id") fun messages(id: Long): Flow<List<SessionMessageEntity>>
