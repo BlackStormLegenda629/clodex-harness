@@ -3,7 +3,6 @@ package app.clodex.harness.ui.screens
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,7 +85,7 @@ private fun ProjCard(title: String, action: String, modifier: Modifier, onClick:
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Column(
-        modifier.heightIn(min = 104.dp).hClick(onClick = onClick).clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(14.dp),
+        modifier.heightIn(min = 112.dp).hClick(onClick = onClick).clip(shape).background(c.s1).padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(title, style = H.t.row14Med, color = c.ink)
@@ -120,7 +119,7 @@ fun ProjectScreen(id: Long) {
             Text(proj.name, style = H.t.pt, color = H.c.ink, modifier = Modifier.padding(horizontal = 20.dp))
             if (proj.description.isNotBlank()) Text(proj.description, style = H.t.body, color = H.c.mu, modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 4.dp))
             Row(
-                Modifier.padding(start = 20.dp, top = 12.dp).clip(RoundedCornerShape(16.dp)).background(H.c.s2).padding(horizontal = 12.dp, vertical = 8.dp),
+                Modifier.padding(start = 20.dp, top = 12.dp).clip(RoundedCornerShape(HDim.chip)).background(H.c.s2).padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) { Ic(HIcon.Lock, size = 16.dp, tint = H.c.mu); Text("Приватный", style = H.t.row14, color = H.c.mu) }
 

@@ -6,7 +6,6 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -113,15 +112,15 @@ fun ArtifactScreen(id: Long) {
         HtmlViewer(art.name, art.content) { nav.pop() }
         return
     }
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(app.clodex.harness.ui.theme.HDim.card)
     ScreenFrame {
         Header(art.name, onBack = { nav.pop() }, subtitle = art.kind, actions = { IconBtn(HIcon.Dl, "Скачать", { download(art) }, circle = true) })
         Body {
-            Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape)) {
+            Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).fillMaxWidth().clip(shape).background(c.s1)) {
                 Text(
                     if (art.kind == "Код") highlight(art.content, c) else androidx.compose.ui.text.AnnotatedString(art.content),
                     style = H.t.monoCode, color = c.ink, softWrap = false,
-                    modifier = Modifier.horizontalScroll(rememberScrollState()).padding(14.dp),
+                    modifier = Modifier.horizontalScroll(rememberScrollState()).padding(16.dp),
                 )
             }
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
