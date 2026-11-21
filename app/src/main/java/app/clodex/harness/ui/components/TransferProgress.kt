@@ -21,9 +21,9 @@ internal fun TransferProgress(style: ProgressStyle, fraction: Float?, modifier: 
     val c = H.c
     val width = modifier.fillMaxWidth()
     if (fraction == null) {
-        LinearProgressIndicator(modifier = width, color = c.ac, trackColor = c.line)
+        LinearProgressIndicator(modifier = width, color = c.ac, trackColor = c.s2)
     } else if (style == ProgressStyle.Straight) {
-        LinearProgressIndicator(progress = { fraction }, modifier = width, color = c.ac, trackColor = c.line)
+        LinearProgressIndicator(progress = { fraction }, modifier = width, color = c.ac, trackColor = c.s2)
     } else {
         Canvas(width.height(12.dp).progressSemantics(fraction)) {
             val inset = 1.5.dp.toPx()
@@ -31,7 +31,7 @@ internal fun TransferProgress(style: ProgressStyle, fraction: Float?, modifier: 
             val mid = size.height / 2
             val length = usable * fraction
             val stroke = inset * 2
-            drawLine(c.line, Offset(inset, mid), Offset(inset + usable, mid), stroke, StrokeCap.Round)
+            drawLine(c.s2, Offset(inset, mid), Offset(inset + usable, mid), stroke, StrokeCap.Round)
             if (length > 0f) {
                 val period = 20.dp.toPx()
                 val path = Path().apply {

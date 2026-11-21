@@ -133,7 +133,7 @@ class HText(val sans: FontFamily, val mono: FontFamily) {
             lineHeight = if (lh != null) (size * lh).sp else TextUnit.Unspecified, letterSpacing = ls.sp,
         )
 
-    val hd = s(17f, FontWeight.SemiBold)
+    val hd = s(22f, FontWeight.SemiBold)
     val big = s(26f, FontWeight.SemiBold, ls = -0.52f)
     val pt = s(30f, FontWeight.SemiBold, ls = -0.6f)
     val sheetTitle = s(17f, FontWeight.SemiBold)

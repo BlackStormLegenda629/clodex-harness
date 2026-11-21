@@ -149,11 +149,10 @@ fun ThinkingSummaryDialog(state: ThinkingPresentation, onDismiss: () -> Unit) {
         ),
     ) {
         val c = H.c
-        val shape = RoundedCornerShape(HDim.composer)
+        val shape = RoundedCornerShape(HDim.sheetTop)
         Column(
             Modifier.fillMaxWidth(0.9f).widthIn(max = 620.dp).heightIn(max = 680.dp)
                 .clip(shape).background(c.s1)
-                .border(1.dp, c.line, shape)
                 .padding(horizontal = 22.dp, vertical = 16.dp),
         ) {
             Box(Modifier.fillMaxWidth().padding(bottom = 10.dp), contentAlignment = Alignment.Center) {

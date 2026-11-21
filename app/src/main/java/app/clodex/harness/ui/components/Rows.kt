@@ -37,10 +37,10 @@ import app.clodex.harness.ui.icons.HIcon
 import app.clodex.harness.ui.theme.H
 import app.clodex.harness.ui.theme.HDim
 
-/** Section title (.sg): 12sp uppercase muted. */
+/** Material You section title: 14sp semibold, accent colored, sentence case. */
 @Composable
 fun Sg(text: String) {
-    Text(text.uppercase(), style = H.t.sg, color = H.c.mu, modifier = Modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 8.dp))
+    Text(text, style = H.t.row14Semi, color = H.c.ac, modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 8.dp))
 }
 
 /** Bordered card with hairline dividers between rows; every row rises in with the prototype's stagger. */
@@ -48,11 +48,16 @@ fun Sg(text: String) {
 fun <T> Grp(items: List<T>, modifier: Modifier = Modifier.padding(horizontal = 20.dp), animate: Boolean = true, row: @Composable (item: T, index: Int) -> Unit) {
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
-    Column(modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape)) {
+    Column(modifier.fillMaxWidth().clip(shape).background(c.s1)) {
         items.forEachIndexed { i, it ->
             Box(
                 Modifier.fillMaxWidth().then(if (animate) Modifier.rise(i) else Modifier)
-                    .drawBehind { if (i > 0) drawLine(c.line, Offset(0f, 0f), Offset(size.width, 0f), 1.dp.toPx()) },
+                    .drawBehind {
+                        if (i > 0) {
+                            val inset = 16.dp.toPx()
+                            drawLine(c.line, Offset(inset, 0f), Offset(size.width - inset, 0f), 1.dp.toPx())
+                        }
+                    },
             ) { row(it, i) }
         }
     }
@@ -67,8 +72,8 @@ fun GrpOf(vararg rows: @Composable () -> Unit) {
 @Composable
 fun Li(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, role: Role? = null, content: @Composable RowScope.() -> Unit) {
     Row(
-        modifier.fillMaxWidth().heightIn(min = 52.dp).then(if (onClick != null) Modifier.hClick(role = role ?: Role.Button, onClick = onClick) else Modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier.fillMaxWidth().heightIn(min = 56.dp).then(if (onClick != null) Modifier.hClick(role = role ?: Role.Button, onClick = onClick) else Modifier)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), content = content,
     )
 }
@@ -80,15 +85,20 @@ fun LiField(
     singleLine: Boolean = true, minLines: Int = 1, modifier: Modifier = Modifier,
 ) {
     val c = H.c; val t = H.t
-    Column(modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically)) {
+    Column(modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)) {
         Text(label, style = t.small, color = c.mu)
-        BasicTextField(
-            value, onChange, singleLine = singleLine, minLines = minLines, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ink),
-            visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(keyboardType = if (password) KeyboardType.Password else KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth().semantics { contentDescription = label },
-            decorationBox = { inner -> Box { if (value.isEmpty() && placeholder.isNotEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
-        )
+        Box(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(HDim.input)).background(c.s2).padding(12.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            BasicTextField(
+                value, onChange, singleLine = singleLine, minLines = minLines, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ink),
+                visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(keyboardType = if (password) KeyboardType.Password else KeyboardType.Text),
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = label },
+                decorationBox = { inner -> Box { if (value.isEmpty() && placeholder.isNotEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
+            )
+        }
     }
 }
 
@@ -103,10 +113,10 @@ fun It(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @C
     )
 }
 
-/** .ai (40dp, radius 12) / .ci (40dp circle) icon plate. */
+/** Material You tonal icon plate: circular by default, tinted with the accent. */
 @Composable
-fun IconPlate(icon: HIcon, circle: Boolean = false, size: Dp = 40.dp, iconSize: Dp = 20.dp, tint: Color = H.c.ink, bg: Color = H.c.s2) {
-    Box(Modifier.size(size).clip(if (circle) CircleShape else RoundedCornerShape(if (size > 40.dp) 20.dp else 12.dp)).background(bg), contentAlignment = Alignment.Center) {
+fun IconPlate(icon: HIcon, circle: Boolean = true, size: Dp = 40.dp, iconSize: Dp = 20.dp, tint: Color = H.c.ac, bg: Color = H.c.ac.copy(alpha = 0.14f)) {
+    Box(Modifier.size(size).clip(if (circle) CircleShape else RoundedCornerShape(HDim.chip)).background(bg), contentAlignment = Alignment.Center) {
         Ic(icon, tint = tint, size = iconSize)
     }
 }
@@ -126,8 +136,8 @@ fun R2(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, role: Role?
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Row(
-        modifier.fillMaxWidth().padding(bottom = 6.dp).then(if (onClick != null) Modifier.hClick(role = role ?: Role.Button, onClick = onClick) else Modifier)
-            .clip(shape).background(c.s1).border(1.dp, c.line, shape).heightIn(min = 60.dp).padding(horizontal = 16.dp, vertical = 14.dp),
+        modifier.fillMaxWidth().padding(bottom = 8.dp).then(if (onClick != null) Modifier.hClick(role = role ?: Role.Button, onClick = onClick) else Modifier)
+            .clip(shape).background(c.s1).heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), content = content,
     )
 }

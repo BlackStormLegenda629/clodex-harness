@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -84,7 +85,7 @@ fun <T : Any> SheetHost(sheet: T?, onDismiss: () -> Unit, content: @Composable C
     Box(Modifier.fillMaxSize()) {
         AnimatedVisibility(sheet != null, enter = fadeIn(m.spec(200, Ease)), exit = fadeOut(m.spec(250, Ease))) {
             Box(
-                Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f))
+                Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.32f))
                     .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onDismiss() },
             )
         }
@@ -147,6 +148,9 @@ private fun SheetSurface(onDismiss: () -> Unit, content: @Composable ColumnScope
             .nestedScroll(connection).verticalScroll(rememberScrollState())
             .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
     ) {
+        Box(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(32.dp, 4.dp).clip(RoundedCornerShape(2.dp)).background(c.mu.copy(alpha = 0.4f)).then(dragModifier))
+        }
         CompositionLocalProvider(LocalSheetDrag provides dragModifier) { content() }
     }
 }

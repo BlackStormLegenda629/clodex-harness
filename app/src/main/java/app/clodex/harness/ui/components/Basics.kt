@@ -114,8 +114,8 @@ fun IconBtn(
     circle: Boolean = false, send: Boolean = false, tint: Color? = null, size: Dp = HDim.iconBtn,
 ) {
     val c = H.c
-    val bg = when { send -> c.ac; circle -> c.s2; else -> Color.Transparent }
-    val fg = tint ?: if (send) c.onAc else c.ink
+    val bg = when { send -> c.ac; circle -> c.ac.copy(alpha = 0.14f); else -> Color.Transparent }
+    val fg = tint ?: if (send) c.onAc else if (circle) c.ac else c.ink
     Box(
         modifier.size(size).hClick(0.92f, label = desc, onClick = onClick).clip(CircleShape).background(bg)
             .semantics { contentDescription = desc },
@@ -147,16 +147,27 @@ fun Header(
 @Composable
 fun Btn(
     text: String, onClick: () -> Unit, modifier: Modifier = Modifier, primary: Boolean = false, danger: Boolean = false,
-    icon: HIcon? = null, enabled: Boolean = true, container: Color? = null,
+    icon: HIcon? = null, enabled: Boolean = true, container: Color? = null, tonal: Boolean = false,
 ) {
     val c = H.c
     val shape = RoundedCornerShape(HDim.pill)
-    val bg = container ?: if (primary) c.ac else Color.Transparent
-    val border = container ?: if (primary) c.ac else c.line
-    val fg = when { container != null -> c.bg; primary -> c.onAc; danger -> c.dt; else -> c.ink }
+    val bg = container ?: when {
+        primary -> c.ac
+        tonal -> c.bb
+        else -> Color.Transparent
+    }
+    val fg = when {
+        container != null -> c.bg
+        primary -> c.onAc
+        tonal -> c.bt
+        danger -> c.dt
+        else -> c.ink
+    }
     Row(
-        modifier.height(46.dp).graphicsLayer { alpha = if (enabled) 1f else 0.45f }
-            .hClick(enabled = enabled, onClick = onClick).clip(shape).background(bg).border(1.dp, border, shape).padding(horizontal = 14.dp),
+        modifier.height(48.dp).graphicsLayer { alpha = if (enabled) 1f else 0.45f }
+            .hClick(enabled = enabled, onClick = onClick).clip(shape).background(bg)
+            .then(if (primary || tonal || container != null) Modifier else Modifier.border(1.dp, c.line, shape))
+            .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
         if (icon != null) Ic(icon, tint = fg)
@@ -169,11 +180,10 @@ fun HChip(text: String, on: Boolean, mono: Boolean = false, onClick: () -> Unit)
     val c = H.c
     val shape = RoundedCornerShape(HDim.chip)
     Box(
-        Modifier.height(40.dp).hClick(0.92f, role = Role.Tab, onClick = onClick).clip(shape)
-            .semantics { selected = on }.background(if (on) c.s2 else Color.Transparent)
-            .border(1.dp, if (on) c.mu else c.line, shape).padding(horizontal = 14.dp),
+        Modifier.height(36.dp).hClick(0.92f, role = Role.Tab, onClick = onClick).clip(shape)
+            .semantics { selected = on }.background(if (on) c.ac.copy(alpha = 0.16f) else c.s2).padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, style = if (mono) H.t.mono13 else H.t.chip13, color = if (on) c.ink else c.mu) }
+    ) { Text(text, style = if (mono) H.t.mono13 else H.t.chip13, color = if (on) c.ac else c.mu) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -190,10 +200,10 @@ fun Seg(
 @Composable
 fun Sw(on: Boolean, modifier: Modifier = Modifier, onToggle: (() -> Unit)? = null) {
     val c = H.c; val m = LocalMotion.current
-    val x by animateDpAsState(if (on) 21.dp else 3.dp, m.spec(150, Ease), label = "sw")
+    val x by animateDpAsState(if (on) 23.dp else 3.dp, m.spec(150, Ease), label = "sw")
     val click = if (onToggle != null) Modifier.hClick(role = Role.Switch, onClick = onToggle) else Modifier
-    Box(modifier.size(44.dp, 26.dp).then(click).clip(RoundedCornerShape(13.dp)).background(if (on) c.ac else c.s2)) {
-        Box(Modifier.offset(x = x, y = 3.dp).size(20.dp).clip(CircleShape).background(if (on) c.onAc else c.mu))
+    Box(modifier.size(52.dp, 32.dp).then(click).clip(RoundedCornerShape(16.dp)).background(if (on) c.ac else c.s2)) {
+        Box(Modifier.offset(x = x, y = 3.dp).size(26.dp).clip(CircleShape).background(if (on) c.onAc else c.mu))
     }
 }
 
@@ -202,8 +212,8 @@ fun Srch(value: String, onChange: (String) -> Unit, placeholder: String, modifie
     val c = H.c; val t = H.t
     val shape = RoundedCornerShape(HDim.input)
     Row(
-        modifier.fillMaxWidth().padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 12.dp).height(48.dp)
-            .clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(horizontal = 14.dp),
+        modifier.fillMaxWidth().padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 12.dp).height(52.dp)
+            .clip(shape).background(c.s1).padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Ic(HIcon.Search, tint = c.mu)
@@ -231,14 +241,14 @@ enum class BdgKind { Blue, Grey, Warn }
 fun Bdg(text: String, kind: BdgKind = BdgKind.Blue, modifier: Modifier = Modifier) {
     val c = H.c
     val (bg, fg) = when (kind) { BdgKind.Blue -> c.bb to c.bt; BdgKind.Grey -> c.s2 to c.mu; BdgKind.Warn -> c.wb to c.warn }
-    Text(text, style = H.t.badge, color = fg, modifier = modifier.clip(RoundedCornerShape(12.dp)).background(bg).padding(horizontal = 10.dp, vertical = 3.dp))
+    Text(text, style = H.t.badge, color = fg, modifier = modifier.clip(RoundedCornerShape(14.dp)).background(bg).padding(horizontal = 10.dp, vertical = 4.dp))
 }
 
 @Composable
 fun Fab(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = H.c
     Row(
-        modifier.height(52.dp).hClick(onClick = onClick).clip(RoundedCornerShape(HDim.pill)).background(c.ac).padding(horizontal = 24.dp),
+        modifier.height(56.dp).hClick(onClick = onClick).clip(RoundedCornerShape(HDim.pill)).background(c.ac).padding(horizontal = 28.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) { Ic(HIcon.Plus, tint = c.onAc); Text(text, style = H.t.fab, color = c.onAc) }
 }
@@ -253,14 +263,13 @@ fun Dock(content: @Composable ColumnScope.() -> Unit) {
 fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
     val c = H.c
     val m = LocalMotion.current
-    val shape = RoundedCornerShape(14.dp)
-    BoxWithConstraints(Modifier.fillMaxWidth().height(HDim.tabsBar).clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(4.dp)) {
+    BoxWithConstraints(Modifier.fillMaxWidth().height(80.dp).clip(RoundedCornerShape(28.dp)).background(c.s1).padding(4.dp)) {
         val index = items.indexOfFirst { it.third }.coerceAtLeast(0)
         val tabW = maxWidth / items.size
-        val x by animateDpAsState(tabW * index, m.spec(320, Rise), label = "tabIndicator")
-        // The neutral selection surface slides to the active tab.
+        val x by animateDpAsState(tabW * index + (tabW - 64.dp) / 2, m.spec(320, Rise), label = "tabIndicator")
+        // Material You selection pill slides to the active tab.
         Box(
-            Modifier.offset(x = x).width(tabW).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(c.s2),
+            Modifier.offset(x = x).width(64.dp).height(32.dp).clip(RoundedCornerShape(16.dp)).background(c.ac.copy(alpha = 0.16f)),
         )
         Row(Modifier.fillMaxSize().selectableGroup()) {
             items.forEachIndexed { i, (label, icon, on) ->
@@ -282,12 +291,12 @@ fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
     }
 }
 
-/** Screen shell: status bar + (nav bars ∪ IME) insets, content capped at 980dp on tablets, optional dock. */
+/** Screen shell: status bar + (nav bars ∪ IME) insets, content capped at 1000dp on tablets, optional dock. */
 @Composable
 fun ScreenFrame(dock: (@Composable ColumnScope.() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     val c = H.c
     Box(Modifier.fillMaxSize().background(c.bg), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.widthIn(max = 980.dp).fillMaxSize().statusBarsPadding().windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))) {
+        Column(Modifier.widthIn(max = 1000.dp).fillMaxSize().statusBarsPadding().windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))) {
             Column(Modifier.weight(1f).fillMaxWidth(), content = content)
             if (dock != null) Dock(dock)
         }
