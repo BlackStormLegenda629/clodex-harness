@@ -38,6 +38,7 @@ private const val CAVEMAN_SOURCE = "https://github.com/JuliusBrussee/caveman"
 fun ColumnScope.ProgrammingScreen() {
     val nav = LocalNav.current
     val vms = LocalVms.current
+    val workspaces by vms.code.workspaces.collectAsStateWithLifecycle()
     val s by vms.settings.settings.collectAsStateWithLifecycle()
     val skills by vms.skills.skills.collectAsStateWithLifecycle()
     val mode by vms.code.mode.collectAsStateWithLifecycle()
@@ -185,7 +186,7 @@ fun ColumnScope.ProgrammingScreen() {
         { ActionRow("Инструкции агента", icon = HIcon.Docp) { nav.settings("instr") } },
         { ActionRow("Скиллы", "${skills.count { it.enabled && it.body.isNotBlank() }} с инструкциями", icon = HIcon.Pen) { nav.settings("skills") } },
         { ActionRow("Разрешения и поведение", mode, icon = HIcon.Lock) { nav.settings("perm") } },
-        { ActionRow("Рабочие папки", s.workDirs.size.toString(), icon = HIcon.Folder) { nav.settings("dirs") } },
+        { ActionRow("Рабочие папки", workspaces.count { it.kind == "dev" }.toString(), icon = HIcon.Folder) { nav.settings("dirs") } },
     )
     SheetNote(
         "Включённые скиллы с непустым текстом добавляются к запросам как инструкции. Они не устанавливают плагины и не дают доступ к запуску команд.",

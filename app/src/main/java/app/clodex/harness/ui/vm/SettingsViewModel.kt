@@ -88,10 +88,6 @@ class SettingsViewModel(private val c: AppContainer) : ViewModel() {
     }
 
     fun removeAlwaysAllowed(cmd: String) = viewModelScope.launch { repo.setAlwaysAllowed(settings.value.alwaysAllowed - cmd) }
-    fun addWorkDir(path: String, tag: String = "git") = viewModelScope.launch {
-        val cur = settings.value.workDirs
-        if (cur.none { it.path == path }) repo.setWorkDirs(cur + WorkDir(path, tag))
-    }
 
     fun wipeAll(onDone: () -> Unit) = viewModelScope.launch { c.wipeAll(); onDone() }
 }

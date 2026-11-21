@@ -13,8 +13,8 @@ val Context.settingsStore: DataStore<Preferences> by preferencesDataStore(name =
 data class WorkDir(val path: String, val tag: String = "git")
 
 val TOGGLE_DEFAULTS: Map<String, Boolean> = mapOf(
-    "ask" to true, "edit" to false, "agentWeb" to false, "web" to false,
-    "n1" to true, "n2" to true, "n3" to false, "p1" to true, "p2" to false,
+    "web" to false,
+    "n1" to true, "n2" to true, "n3" to false, "p2" to false,
 )
 
 /** A provider endpoint. Built-ins (Anthropic/OpenAI/DeepSeek) show their own model catalogs. */
@@ -114,7 +114,6 @@ data class AppSettings(
     val githubToken: String = "",
     val instructions: String = "Отвечай кратко по-русски. Объясняй изменения. Не утверждай, что запускал команды или тесты, если не запускал.",
     val alwaysAllowed: List<String> = listOf("npm test", "git status", "ls"),
-    val workDirs: List<WorkDir> = listOf(WorkDir("~/api-server"), WorkDir("~/web-app"), WorkDir("~/cli-tools")),
     val seeded: Boolean = false,
     val toggles: Map<String, Boolean> = TOGGLE_DEFAULTS,
     val style: AppStyle = AppStyle.Material,
@@ -168,7 +167,6 @@ object K {
     val githubToken = stringPreferencesKey("githubToken")
     val instructions = stringPreferencesKey("instructions")
     val alwaysAllowed = stringPreferencesKey("alwaysAllowed")
-    val workDirs = stringPreferencesKey("workDirs")
     val seeded = booleanPreferencesKey("seeded")
     val cavemanInstalled = booleanPreferencesKey("cavemanInstalled")
     val cavemanIntensity = stringPreferencesKey("cavemanIntensity")
@@ -211,8 +209,6 @@ class SettingsRepository(private val store: DataStore<Preferences>) : CodePrefs 
             githubToken = p[K.githubToken] ?: "",
             instructions = p[K.instructions] ?: d.instructions,
             alwaysAllowed = p[K.alwaysAllowed]?.split('\n')?.filter { it.isNotBlank() } ?: d.alwaysAllowed,
-            workDirs = p[K.workDirs]?.split('\n')?.filter { it.isNotBlank() }
-                ?.map { l -> l.split('\t').let { WorkDir(it[0], it.getOrElse(1) { "git" }) } } ?: d.workDirs,
             seeded = p[K.seeded] ?: false,
             toggles = TOGGLE_DEFAULTS.mapValues { (k, v) -> p[K.toggle(k)] ?: v },
             cavemanInstalled = p[K.cavemanInstalled] ?: d.cavemanInstalled,
@@ -223,7 +219,6 @@ class SettingsRepository(private val store: DataStore<Preferences>) : CodePrefs 
     suspend fun <T> set(key: Preferences.Key<T>, value: T) { store.edit { it[key] = value } }
     suspend fun setToggle(name: String, value: Boolean) { store.edit { it[K.toggle(name)] = value } }
     suspend fun setAlwaysAllowed(list: List<String>) { store.edit { it[K.alwaysAllowed] = list.joinToString("\n") } }
-    suspend fun setWorkDirs(list: List<WorkDir>) { store.edit { it[K.workDirs] = list.joinToString("\n") { d -> d.path + "\t" + d.tag } } }
     suspend fun setProviders(list: List<ProviderCfg>) { store.edit { it[K.providers] = encodeProviders(list) } }
     suspend fun clearAll() { store.edit { it.clear() } }
 

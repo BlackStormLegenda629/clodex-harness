@@ -74,6 +74,8 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
     val nav = LocalNav.current; val vms = LocalVms.current; val ctx = LocalContext.current
     val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     val s by vms.settings.settings.collectAsStateWithLifecycle()
+    val workspaces by vms.code.workspaces.collectAsStateWithLifecycle()
+    val folders = workspaces.filter { it.kind == "dev" }
     val skills by vms.skills.skills.collectAsStateWithLifecycle()
     val cons by vms.connectors.connectors.collectAsStateWithLifecycle()
     val sv = vms.settings
@@ -103,7 +105,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                         { ActionRow("Поиск в интернете", icon = HIcon.Globe) { nav.settings("search") } },
                         { ActionRow("Запланированные сообщения", icon = HIcon.Wait) { nav.settings("schedule") } },
                         { ActionRow("Инструкции", icon = HIcon.Docp) { nav.settings("instr") } },
-                        { ActionRow("Рабочие папки", s.workDirs.size.toString(), icon = HIcon.Folder) { nav.settings("dirs") } },
+                        { ActionRow("Рабочие папки", folders.size.toString(), icon = HIcon.Folder) { nav.settings("dirs") } },
                     )
                     Sg("Приложение")
                     GrpOf(
@@ -198,13 +200,12 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     val pick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
                         if (uri != null) {
                             app.clodex.harness.util.Saf.takePermission(ctx, uri)
-                            val local = app.clodex.harness.util.Saf.localPathOrNull(uri)
-                            val name = app.clodex.harness.util.Saf.name(ctx, uri)
-                            sv.addWorkDir(local ?: name, if (local != null) "git" else "saf")
+                            vms.code.addDeviceWorkspace("", uri.toString())
                         }
                     }
-                    if (s.workDirs.isEmpty()) Emp("Папок пока нет", HIcon.Folder)
-                    else Grp(s.workDirs) { d, _ -> Li { Text(d.path, style = H.t.mono13, color = H.c.ink, modifier = Modifier.weight(1f)); Text(d.tag, style = H.t.row14, color = H.c.mu) } }
+                    if (folders.isEmpty()) Emp("Папок пока нет", HIcon.Folder)
+                    else Grp(folders) { folder, _ -> Li { Titles(folder.name) } }
+                    SheetNote("Если папка, выбранная в старой версии, не видна, добавьте её заново.", Modifier.padding(horizontal = 20.dp))
                     Box(Modifier.fillMaxWidth().padding(20.dp)) { Btn("Добавить папку", { pick.launch(null) }, Modifier.fillMaxWidth(), icon = HIcon.Plus) }
                 }
                 "look" -> {
@@ -269,7 +270,6 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                 }
                 "priv" -> {
                     GrpOf(
-                        { ToggleRow("Сохранять историю чатов", s.on("p1"), icon = HIcon.Chat) { sv.toggle("p1") } },
                         { ActionRow("Общая память", icon = HIcon.Lock) { nav.push("memory/0") } },
                     )
                     Box(Modifier.fillMaxWidth().padding(20.dp)) {

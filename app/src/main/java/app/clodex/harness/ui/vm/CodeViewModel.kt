@@ -15,6 +15,8 @@ import app.clodex.harness.data.SessionEventEntity
 import app.clodex.harness.data.SessionMessageEntity
 import app.clodex.harness.data.SessionRepository
 import app.clodex.harness.data.SkillParser
+import app.clodex.harness.data.WorkDir
+import app.clodex.harness.data.WorkDirMapping
 import app.clodex.harness.data.WorkspaceEntity
 import app.clodex.harness.data.agent.AgentEvent
 import app.clodex.harness.data.agent.AgentMessage
@@ -378,13 +380,16 @@ class CodeViewModel(
     }
 
     fun addDeviceWorkspace(name: String, path: String, onDone: (Boolean) -> Unit = {}) = workspaceAction(onDone) {
-        if (path.isBlank()) { toasts.show("Не удалось открыть папку"); return@workspaceAction false }
+        val mapped = runCatching { WorkDirMapping.toWorkspace(WorkDir(path, "saf")) }.getOrElse {
+            toasts.show("Не удалось открыть папку")
+            return@workspaceAction false
+        }
         val all = repo.workspaces.first()
         if (all.any { it.path == path }) { toasts.show("Папка уже добавлена"); return@workspaceAction false }
-        val base = name.ifBlank { "Папка на устройстве" }
+        val base = name.ifBlank { mapped.name }
         val names = all.map { it.name }.toSet() + ALL_WORKSPACES
         val n = generateSequence(2) { it + 1 }.map { "$base $it" }.let { seq -> if (base in names) seq.first { it !in names } else base }
-        val ws = WorkspaceEntity(name = n, kind = "dev", path = path)
+        val ws = mapped.copy(name = n)
         if (!accessible(ws)) return@workspaceAction false
         repo.addWorkspace(ws)
         prefs.setWorkspace(n)
