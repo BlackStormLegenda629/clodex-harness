@@ -2,6 +2,7 @@ package app.clodex.harness.ui.theme
 
 import android.content.Context
 import android.database.ContentObserver
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -9,6 +10,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,7 +29,7 @@ import androidx.compose.ui.unit.Density
 import app.clodex.harness.data.AppSettings
 import app.clodex.harness.data.AppStyle
 
-val LocalColors = staticCompositionLocalOf { colorsFor(false, Accents[0]) }
+val LocalColors = staticCompositionLocalOf { colorsFor(false, Accents[0], AppStyle.Material) }
 val LocalText = staticCompositionLocalOf { HText(FontFamily.Default, FontFamily.Monospace) }
 val LocalMotion = staticCompositionLocalOf { Motion(true) }
 internal val LocalProgressStyle = staticCompositionLocalOf { app.clodex.harness.data.ProgressStyle.Straight }
@@ -65,9 +68,14 @@ fun isDarkTheme(settings: AppSettings): Boolean = when (settings.theme) {
 
 @Composable
 fun HarnessTheme(settings: AppSettings, content: @Composable () -> Unit) {
+    val ctx = LocalContext.current
     val dark = isDarkTheme(settings)
     val accent = Accents.firstOrNull { it.name == settings.accent } ?: Accents[0]
-    val colors = remember(dark, accent, settings.style) { colorsFor(dark, accent, settings.style) }
+    val colors = remember(dark, accent, settings.style, ctx) {
+        if (settings.style == AppStyle.Material && Build.VERSION.SDK_INT >= 31) {
+            materialColors(if (dark) dynamicDarkColorScheme(ctx) else dynamicLightColorScheme(ctx), dark)
+        } else colorsFor(dark, accent, settings.style)
+    }
     val text = remember(settings.uiFont, settings.codeFont) {
         HText(UiFontCatalog.family(settings.uiFont), CodeFontCatalog.family(settings.codeFont))
     }

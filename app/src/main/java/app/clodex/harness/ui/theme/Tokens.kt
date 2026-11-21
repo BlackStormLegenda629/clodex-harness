@@ -4,6 +4,7 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -49,6 +50,37 @@ private val StudioDark = DarkBase.copy(
     ink = Color(0xFFF2EDE7), mu = Color(0xFFB9AEA4),
 )
 
+/** Fallback Material You palette for Android 8–11 and devices without dynamic color. */
+private val MaterialLight = HColors(
+    bg = Color(0xFFFEF7FF), s1 = Color(0xFFF7F2FA), s2 = Color(0xFFECE6F0), line = Color(0xFFCAC4D0),
+    ink = Color(0xFF1D1B20), mu = Color(0xFF49454F), warn = Color(0xFF9A3412), ok = Color(0xFF1F6B5C),
+    bb = Color(0xFFE8DEF8), bt = Color(0xFF1D192B), ab = Color(0xFFE7F4EE), at = Color(0xFF14573F),
+    db = Color(0xFFF9DEDC), dt = Color(0xFFB3261E), wb = Color(0xFFFBEBD9), onAc = Color(0xFFFFFFFF),
+    ac = Color(0xFF5B4B8A), dark = false,
+)
+
+private val MaterialDark = HColors(
+    bg = Color(0xFF141218), s1 = Color(0xFF1D1B20), s2 = Color(0xFF2B2930), line = Color(0xFF49454F),
+    ink = Color(0xFFE6E0E9), mu = Color(0xFFCAC4D0), warn = Color(0xFFF0925A), ok = Color(0xFF5BBF9F),
+    bb = Color(0xFF4A4458), bt = Color(0xFFE8DEF8), ab = Color(0xFF12291F), at = Color(0xFF86DDB5),
+    db = Color(0xFF8C1D18), dt = Color(0xFFF2B8B5), wb = Color(0xFF3A2410), onAc = Color(0xFF332D41),
+    ac = Color(0xFFCFBCFF), dark = true,
+)
+
+/** Maps Material roles onto the app's semantic slots; foregrounds always come from `on*` roles. */
+fun materialColors(scheme: ColorScheme, dark: Boolean): HColors = HColors(
+    bg = scheme.surface, s1 = scheme.surfaceContainerLow, s2 = scheme.surfaceContainerHigh,
+    line = scheme.outlineVariant, ink = scheme.onSurface, mu = scheme.onSurfaceVariant,
+    warn = if (dark) Color(0xFFF0925A) else Color(0xFF9A3412),
+    ok = if (dark) Color(0xFF5BBF9F) else Color(0xFF1F6B5C),
+    bb = scheme.primaryContainer, bt = scheme.onPrimaryContainer,
+    ab = if (dark) Color(0xFF12291F) else Color(0xFFE7F4EE),
+    at = if (dark) Color(0xFF86DDB5) else Color(0xFF14573F),
+    db = scheme.errorContainer, dt = scheme.error,
+    wb = if (dark) Color(0xFF3A2410) else Color(0xFFFBEBD9),
+    onAc = scheme.onPrimary, ac = scheme.primary, dark = dark,
+)
+
 /** Accent names are persisted in settings. */
 data class Accent(val name: String, val light: Color, val dark: Color)
 
@@ -61,21 +93,22 @@ val Accents = listOf(
 
 fun colorsFor(dark: Boolean, accent: Accent, style: AppStyle = AppStyle.Classic): HColors =
     when (style) {
-        AppStyle.Classic -> if (dark) DarkBase else LightBase
-        AppStyle.Studio -> if (dark) StudioDark else StudioLight
-    }.copy(ac = if (dark) accent.dark else accent.light)
+        AppStyle.Classic -> (if (dark) DarkBase else LightBase).copy(ac = if (dark) accent.dark else accent.light)
+        AppStyle.Studio -> (if (dark) StudioDark else StudioLight).copy(ac = if (dark) accent.dark else accent.light)
+        AppStyle.Material -> if (dark) MaterialDark else MaterialLight
+    }
 
 object HDim {
-    val card = 12.dp
-    val input = 12.dp
-    val composer = 16.dp
-    val sheetTop = 18.dp
-    val pill = 12.dp
-    val iconBtn = 44.dp
-    val chip = 10.dp
-    val tabsBar = 60.dp
+    val card = 24.dp
+    val input = 16.dp
+    val composer = 24.dp
+    val sheetTop = 28.dp
+    val pill = 24.dp
+    val iconBtn = 40.dp
+    val chip = 18.dp
+    val tabsBar = 72.dp
     val content = 20.dp
-    val header = 68.dp
+    val header = 64.dp
     val userMsgBig = 20.dp
     val userMsgSmall = 6.dp
 }

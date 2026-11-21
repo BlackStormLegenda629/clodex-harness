@@ -38,11 +38,11 @@ class AppearanceStyleTest {
         }
     }
 
-    @Test fun `existing and unrecognized preferences use Classic`() = runBlocking {
+    @Test fun `existing and unrecognized preferences use Material`() = runBlocking {
         withRepository { settings ->
-            assertEquals(AppStyle.Classic, settings.flow.first().style)
+            assertEquals(AppStyle.Material, settings.flow.first().style)
             settings.set(stringPreferencesKey("style"), "FutureStyle")
-            assertEquals(AppStyle.Classic, settings.flow.first().style)
+            assertEquals(AppStyle.Material, settings.flow.first().style)
         }
     }
 
@@ -53,6 +53,11 @@ class AppearanceStyleTest {
         }
         withRepository { settings ->
             assertEquals(AppStyle.Studio, settings.flow.first().style)
+            settings.set(K.style, AppStyle.Material.name)
+        }
+        withRepository { settings ->
+            assertEquals(AppStyle.Material, settings.flow.first().style)
+            assertEquals("Тёмная", settings.flow.first().theme)
             settings.set(K.style, AppStyle.Classic.name)
         }
         withRepository { settings ->

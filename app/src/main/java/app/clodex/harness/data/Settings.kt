@@ -93,7 +93,7 @@ private fun migrateProviders(p: Preferences): List<ProviderCfg> {
     return base + custom
 }
 
-enum class AppStyle { Classic, Studio }
+enum class AppStyle { Classic, Studio, Material }
 enum class ProgressStyle(val label: String) { Straight("Прямой"), Wave("Волна") }
 
 data class AppSettings(
@@ -117,7 +117,7 @@ data class AppSettings(
     val workDirs: List<WorkDir> = listOf(WorkDir("~/api-server"), WorkDir("~/web-app"), WorkDir("~/cli-tools")),
     val seeded: Boolean = false,
     val toggles: Map<String, Boolean> = TOGGLE_DEFAULTS,
-    val style: AppStyle = AppStyle.Classic,
+    val style: AppStyle = AppStyle.Material,
     val progressStyle: ProgressStyle = ProgressStyle.Straight,
     val scrollBlur: Boolean = false,
 ) {
