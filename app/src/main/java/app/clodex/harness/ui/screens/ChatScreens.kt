@@ -87,6 +87,7 @@ fun ChatHeader() {
         title = chat?.title ?: "Новый чат",
         leading = { IconBtn(HIcon.List, "Все чаты", { nav.push("chats") }) },
         actions = {
+            IconBtn(HIcon.Search, "Поиск", nav::search)
             IconBtn(HIcon.Plus, "Новый чат", { vms.chat.newChat() }, circle = true)
             GearBtn()
         },

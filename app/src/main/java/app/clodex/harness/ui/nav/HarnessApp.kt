@@ -245,7 +245,7 @@ fun HarnessApp(container: AppContainer) {
     val connectorsVm: ConnectorsViewModel = viewModel(factory = factory)
     val settingsVm: SettingsViewModel = viewModel(factory = factory)
     val vms = remember(appVm, chatVm, projectsVm, artifactsVm, codeVm, skillsVm, connectorsVm, settingsVm) {
-        Vms(appVm, chatVm, projectsVm, artifactsVm, codeVm, skillsVm, connectorsVm, settingsVm)
+        Vms(container, appVm, chatVm, projectsVm, artifactsVm, codeVm, skillsVm, connectorsVm, settingsVm)
     }
     val navController = rememberNavController()
     val route by navController.currentBackStackEntryAsState()
@@ -283,6 +283,7 @@ fun HarnessApp(container: AppContainer) {
             ) {
                 composable(Routes.MAIN) { MainScreen() }
                 composable(Routes.CHATS) { ChatsListScreen() }
+                composable(Routes.SEARCH) { SearchScreen() }
                 composable(Routes.SETTINGS, listOf(navArgument("id") { type = NavType.StringType })) {
                     SettingsScreen(it.arguments?.getString("id") ?: "root", onDismissUpdate = { dismissedUpdate = it })
                 }

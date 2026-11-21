@@ -4,12 +4,14 @@ import android.net.Uri
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
+import app.clodex.harness.AppContainer
 import app.clodex.harness.ui.vm.*
 import app.clodex.harness.util.ToastBus
 
 object Routes {
     const val MAIN = "main"
     const val CHATS = "chats"
+    const val SEARCH = "search"
     const val SETTINGS = "settings/{id}"
     const val PROJECT = "project/{id}"
     const val CONTEXT = "context/{id}"
@@ -22,6 +24,7 @@ object Routes {
 }
 
 class Vms(
+    val container: AppContainer,
     val app: AppViewModel, val chat: ChatViewModel, val projects: ProjectsViewModel, val artifacts: ArtifactsViewModel,
     val code: CodeViewModel, val skills: SkillsViewModel, val connectors: ConnectorsViewModel, val settings: SettingsViewModel,
 )
@@ -33,6 +36,7 @@ class Nav(val controller: NavHostController, private val app: AppViewModel) {
     fun push(route: String) { controller.navigate(route) }
     fun pop() { controller.popBackStack() }
     fun settings(id: String = "root") = push("settings/$id")
+    fun search() = push(Routes.SEARCH)
     fun project(id: Long) = push("project/$id")
     fun session(id: Long) = push("session/$id")
     fun artifact(id: Long) = push("artifact/$id")

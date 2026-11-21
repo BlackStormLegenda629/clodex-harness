@@ -6,6 +6,7 @@ import androidx.work.await
 import androidx.datastore.preferences.core.edit
 import app.clodex.harness.data.*
 import app.clodex.harness.data.backup.BackupRepository
+import app.clodex.harness.data.search.*
 import app.clodex.harness.data.mcp.DataStoreMcpConfigRepository
 import app.clodex.harness.data.mcp.KtorMcpGateway
 import app.clodex.harness.data.mcp.McpRepository
@@ -82,6 +83,7 @@ class AppContainer(private val app: Application) {
     val toasts = ToastBus()
     val files: FileStore by lazy { FileStore(app) }
     val backups by lazy { BackupRepository(db, settings, app.contentResolver) }
+    val searchRepository by lazy { SearchRepository(RoomSearchSources(db), object : FileSearch { override suspend fun search(q: String) = emptyList<SearchHit>() }) }
 
     private val http: HttpClient by lazy {
         HttpClient(OkHttp) { install(HttpTimeout) { requestTimeoutMillis = 300_000; connectTimeoutMillis = 20_000; socketTimeoutMillis = 120_000 } }
