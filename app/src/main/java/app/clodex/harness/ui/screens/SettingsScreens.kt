@@ -72,6 +72,7 @@ fun SettingsScreen(id: String, onDismissUpdate: (Long) -> Unit) {
 @Composable
 private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
     val nav = LocalNav.current; val vms = LocalVms.current; val ctx = LocalContext.current
+    val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     val s by vms.settings.settings.collectAsStateWithLifecycle()
     val skills by vms.skills.skills.collectAsStateWithLifecycle()
     val cons by vms.connectors.connectors.collectAsStateWithLifecycle()
@@ -253,11 +254,19 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                         }
                     })
                 }
-                "notif" -> GrpOf(
+                "notif" -> {
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+                            androidx.core.content.ContextCompat.checkSelfPermission(ctx, android.Manifest.permission.POST_NOTIFICATIONS) !=
+                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                        ) askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                    GrpOf(
                     { ToggleRow("Нужно подтверждение", s.on("n1"), "Когда агент ждёт разрешения", HIcon.Wait) { sv.toggle("n1") } },
                     { ToggleRow("Сессия завершена", s.on("n2"), icon = HIcon.Ck) { sv.toggle("n2") } },
                     { ToggleRow("Ответ готов", s.on("n3"), "Для длинных ответов", HIcon.Chat) { sv.toggle("n3") } },
-                )
+                    )
+                }
                 "priv" -> {
                     GrpOf(
                         { ToggleRow("Сохранять историю чатов", s.on("p1"), icon = HIcon.Chat) { sv.toggle("p1") } },

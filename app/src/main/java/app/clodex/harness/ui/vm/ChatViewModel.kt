@@ -17,8 +17,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import app.clodex.harness.data.notifications.NotifyEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -38,7 +41,11 @@ data class Draft(val chatId: Long, val text: String)
 data class ProviderOffer(val title: String, val message: String, val providerId: String?, val providerName: String?)
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ChatViewModel(private val c: AppContainer) : ViewModel() {
+class ChatViewModel(
+    private val c: AppContainer,
+    private val onNotify: (NotifyEvent, String, String) -> Unit = { _, _, _ -> },
+    private val isForeground: () -> Boolean = { true },
+) : ViewModel() {
     private val db = c.db
 
     val chats: StateFlow<List<ChatEntity>> = db.chats().observeAll().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -70,6 +77,8 @@ class ChatViewModel(private val c: AppContainer) : ViewModel() {
 
     private val _generating = MutableStateFlow<Set<Long>>(emptySet())
     val generatingChatIds: StateFlow<Set<Long>> = _generating
+    private val _events = MutableSharedFlow<NotifyEvent>(extraBufferCapacity = 16)
+    val events: SharedFlow<NotifyEvent> = _events
 
     private val gate = InteractiveApprovalGate()
     /** A non-read-only MCP tool call waiting for «Разрешить» / «Отклонить». */
@@ -209,6 +218,10 @@ class ChatViewModel(private val c: AppContainer) : ViewModel() {
             )
             db.chats().touch(chat.id, System.currentTimeMillis())
             _offer.value = null
+            if (progress.seconds(System.currentTimeMillis()) >= 10 && !isForeground()) {
+                _events.tryEmit(NotifyEvent.REPLY_READY)
+                onNotify(NotifyEvent.REPLY_READY, "Ответ готов", chat.title)
+            }
         } catch (e: CancellationException) {
             withContext(NonCancellable) { savePartial(chat.id, progress) }
             throw e

@@ -34,6 +34,9 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import app.clodex.harness.data.notifications.NotifyEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +56,7 @@ class CodeViewModel(
     private val toasts: ToastBus,
     private val agent: CodeAgent,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val onNotify: (NotifyEvent, String, String) -> Unit = { _, _, _ -> },
     private val onRunStart: () -> Unit = {},
     val openFiles: suspend (WorkspaceEntity, String) -> Result<CodeFiles> = { _, _ -> Result.failure(WorkspaceException("Папка недоступна")) },
 ) : ViewModel() {
@@ -67,6 +71,8 @@ class CodeViewModel(
     val live: StateFlow<Map<Long, CodeLive>> = _live.asStateFlow()
     private val _running = MutableStateFlow<Set<Long>>(emptySet())
     val running: StateFlow<Set<Long>> = _running.asStateFlow()
+    private val _events = MutableSharedFlow<NotifyEvent>(extraBufferCapacity = 16)
+    val events: SharedFlow<NotifyEvent> = _events
     private val jobs = mutableMapOf<Long, Job>()
 
     init {
@@ -229,7 +235,10 @@ class CodeViewModel(
             val summary = answer.lineSequence().map { it.trim().trimStart('#', '*', '-', ' ') }.firstOrNull { it.isNotEmpty() }.orEmpty().take(120)
             val cur = repo.get(id) ?: return
             when {
-                changes.isEmpty() -> repo.update(cur.copy(status = SesStatus.DONE, perm = Perm.ALLOWED, summary = summary.ifEmpty { "Готово" }))
+                changes.isEmpty() -> repo.update(cur.copy(status = SesStatus.DONE, perm = Perm.ALLOWED, summary = summary.ifEmpty { "Готово" })).also {
+                    _events.tryEmit(NotifyEvent.SESSION_DONE)
+                    onNotify(NotifyEvent.SESSION_DONE, "Code завершил сессию", cur.title)
+                }
                 mode == CodeMode.AUTO -> {
                     repo.update(cur.copy(diff = TextDiff.total(changes.map { it.before to it.after }).toString(), summary = "Применяет изменения…"))
                     applyPending(id)
@@ -239,7 +248,10 @@ class CodeViewModel(
                         status = SesStatus.WAIT, perm = Perm.PENDING,
                         summary = "Ждёт подтверждения · ${files(changes.size)}",
                         diff = TextDiff.total(changes.map { it.before to it.after }).toString(),
-                    ),
+                    ).also {
+                        _events.tryEmit(NotifyEvent.APPROVAL_NEEDED)
+                        onNotify(NotifyEvent.APPROVAL_NEEDED, "Code ждёт подтверждения", cur.title)
+                    }
                 )
             }
         } catch (e: CancellationException) {
@@ -309,6 +321,10 @@ class CodeViewModel(
                     )
                 }
                 toasts.show(if (failed.isEmpty()) "Изменения применены" else "Часть файлов не записана")
+                if (failed.isEmpty()) {
+                    _events.tryEmit(NotifyEvent.SESSION_DONE)
+                    onNotify(NotifyEvent.SESSION_DONE, "Code завершил сессию", s.title)
+                }
             },
         )
     }

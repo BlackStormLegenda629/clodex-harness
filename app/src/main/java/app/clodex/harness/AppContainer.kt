@@ -11,6 +11,9 @@ import app.clodex.harness.data.mcp.McpRepository
 import app.clodex.harness.data.mcp.McpOAuth
 import app.clodex.harness.data.mcp.connectorSettingsStore
 import app.clodex.harness.data.code.DefaultCodeAgent
+import app.clodex.harness.data.notifications.NotificationDecision
+import app.clodex.harness.data.notifications.NotifyEvent
+import app.clodex.harness.util.Notifier
 import app.clodex.harness.util.ToastBus
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -41,8 +44,17 @@ class ClodexApp : Application() {
 
 class AppContainer(private val app: Application) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    val chatVm by lazy { ChatViewModel(this) }
-    val codeVm by lazy { CodeViewModel(sessionRepo, settings, toasts, codeAgent, onRunStart = ::keepGenerationAlive, openFiles = codeAgent::files) }
+    private val notifier by lazy { Notifier(app) }
+    @Volatile private var foreground = false
+    fun setForeground(value: Boolean) { foreground = value }
+    private fun notifyEvent(event: NotifyEvent, title: String, text: String) {
+        scope.launch {
+            val flags = settings.flow.first().toggles
+            if (NotificationDecision.shouldNotify(flags, event)) notifier.show(event, title, text)
+        }
+    }
+    val chatVm by lazy { ChatViewModel(this, onNotify = ::notifyEvent, isForeground = { foreground }) }
+    val codeVm by lazy { CodeViewModel(sessionRepo, settings, toasts, codeAgent, onNotify = ::notifyEvent, onRunStart = ::keepGenerationAlive, openFiles = codeAgent::files) }
 
     fun keepGenerationAlive() {
         try {

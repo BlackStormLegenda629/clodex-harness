@@ -2,6 +2,11 @@ package app.clodex.harness
 
 import android.graphics.Color
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -22,6 +27,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val container = (application as ClodexApp).container
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                container.setForeground(true)
+                try { awaitCancellation() } finally { container.setForeground(false) }
+            }
+        }
         setContent {
             val ready by container.ready.collectAsStateWithLifecycle()
             val settings by container.settings.flow.collectAsStateWithLifecycle(container.initialSettings)
