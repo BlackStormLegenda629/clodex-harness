@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -64,13 +65,34 @@ fun ColumnScope.ProjectsBody() {
     Body {
         Srch(q, { q = it }, "Поиск проектов")
         if (list.isEmpty()) Emp(if (archived) "В архиве пока ничего нет" else "Здесь пока пусто", HIcon.Stack)
-        list.forEach { p ->
-            It(onClick = { nav.project(p.id) }) {
-                Titles(p.name, RelativeTime.modified(p.updatedAt))
-                if (p.pinned) Ic(HIcon.Pin, tint = H.c.mu, size = 16.dp)
-                Ic(HIcon.Ch, tint = H.c.mu, size = 16.dp)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val columns = if (maxWidth >= 600.dp) 2 else 1
+            Column(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                list.chunked(columns).forEach { row ->
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        row.forEach { p -> ProjectTile(p, Modifier.weight(1f)) { nav.project(p.id) } }
+                        repeat(columns - row.size) { Box(Modifier.weight(1f)) }
+                    }
+                }
             }
         }
+    }
+}
+
+/** One project card; the parent lays the cards out in one or two columns. */
+@Composable
+private fun ProjectTile(p: ProjectEntity, modifier: Modifier, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(HDim.card)
+    Row(
+        modifier.heightIn(min = 88.dp).hClick(onClick = onClick).hCard(shape).padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        if (p.pinned) IconPlate(HIcon.Pin, size = 40.dp, iconSize = 18.dp)
+        Titles(p.name, RelativeTime.modified(p.updatedAt))
+        Ic(HIcon.Ch, tint = H.c.mu, size = 16.dp)
     }
 }
 
@@ -85,7 +107,7 @@ private fun ProjCard(title: String, action: String, modifier: Modifier, onClick:
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Column(
-        modifier.heightIn(min = 112.dp).hClick(onClick = onClick).clip(shape).background(c.s1).padding(16.dp),
+        modifier.heightIn(min = 112.dp).hClick(onClick = onClick).hCard(shape).padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(title, style = H.t.row14Med, color = c.ink)

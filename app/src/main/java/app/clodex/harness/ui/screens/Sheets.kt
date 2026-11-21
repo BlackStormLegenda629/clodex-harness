@@ -267,7 +267,7 @@ fun ColumnScope.SheetContent(sheet: Sheet) {
                 androidx.compose.foundation.text.selection.SelectionContainer {
                     Text(
                         text, style = H.t.monoCode, color = H.c.ink,
-                        modifier = Modifier.fillMaxWidth().clip(shape).background(H.c.s1).padding(16.dp),
+                        modifier = Modifier.fillMaxWidth().hCard(shape).padding(16.dp),
                     )
                 }
             }

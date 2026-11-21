@@ -9,9 +9,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +38,7 @@ import app.clodex.harness.ui.nav.LocalNav
 import app.clodex.harness.ui.nav.LocalToasts
 import app.clodex.harness.ui.nav.LocalVms
 import app.clodex.harness.ui.theme.H
+import app.clodex.harness.ui.theme.HDim
 import app.clodex.harness.util.ArtifactIo
 import app.clodex.harness.util.RelativeTime
 import app.clodex.harness.util.highlight
@@ -61,13 +65,37 @@ fun ColumnScope.ArtifactsBody() {
     Body {
         Seg(listOf("Все", "HTML", "Код", "Документ"), f, { f = it })
         if (list.isEmpty()) Emp("Здесь пока пусто", HIcon.Cards)
-        list.forEach { a ->
-            It(onClick = { nav.artifact(a.id) }) {
-                IconPlate(HIcon.File)
-                Titles(a.name, a.kind + " · " + a.source + " · " + RelativeTime.artifact(a.createdAt))
-                IconBtn(HIcon.Dl, "Скачать ${a.name}", { download(a) }, circle = true)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val columns = if (maxWidth >= 600.dp) 2 else 1
+            Column(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                list.chunked(columns).forEach { row ->
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        row.forEach { a ->
+                            ArtifactTile(a, Modifier.weight(1f), onClick = { nav.artifact(a.id) }, onDownload = { download(a) })
+                        }
+                        repeat(columns - row.size) { Box(Modifier.weight(1f)) }
+                    }
+                }
             }
         }
+    }
+}
+
+/** One artifact card; the parent lays the cards out in one or two columns. */
+@Composable
+private fun ArtifactTile(a: ArtifactEntity, modifier: Modifier, onClick: () -> Unit, onDownload: () -> Unit) {
+    val shape = RoundedCornerShape(HDim.card)
+    Row(
+        modifier.heightIn(min = 88.dp).hClick(onClick = onClick).hCard(shape)
+            .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        IconPlate(HIcon.File)
+        Titles(a.name, a.kind + " · " + a.source + " · " + RelativeTime.artifact(a.createdAt))
+        IconBtn(HIcon.Dl, "Скачать ${a.name}", onDownload, circle = true)
     }
 }
 
@@ -116,7 +144,7 @@ fun ArtifactScreen(id: Long) {
     ScreenFrame {
         Header(art.name, onBack = { nav.pop() }, subtitle = art.kind, actions = { IconBtn(HIcon.Dl, "Скачать", { download(art) }, circle = true) })
         Body {
-            Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).fillMaxWidth().clip(shape).background(c.s1)) {
+            Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).fillMaxWidth().hCard(shape)) {
                 Text(
                     if (art.kind == "Код") highlight(art.content, c) else androidx.compose.ui.text.AnnotatedString(art.content),
                     style = H.t.monoCode, color = c.ink, softWrap = false,

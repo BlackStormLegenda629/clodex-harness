@@ -98,7 +98,7 @@ fun TerminalScreen() {
 
     val shape = RoundedCornerShape(HDim.card)
     ScreenFrame(dock = {
-        Column(Modifier.fillMaxWidth().clip(shape).background(H.c.s1).padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)) {
+        Column(Modifier.fillMaxWidth().hCard(shape).padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("$", style = H.t.mono13.copy(fontWeight = FontWeight.SemiBold), color = H.c.ac)
                 BasicTextField(
@@ -122,7 +122,7 @@ fun TerminalScreen() {
                     HChip(c, false, mono = true) { exec(c) }
                 }
             }
-            Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).clip(shape).background(H.c.s1)) {
+            Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).hCard(shape)) {
                 LazyColumn(state = state, modifier = Modifier.fillMaxWidth().heightIn(min = 260.dp, max = 520.dp).padding(16.dp)) {
                     itemsIndexed(lines) { _, line ->
                         Text(

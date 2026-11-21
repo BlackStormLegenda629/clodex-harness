@@ -71,11 +71,27 @@ class AppearanceStyleTest {
         for (dark in listOf(false, true)) {
             val classic = colorsFor(dark, accent, AppStyle.Classic)
             val studio = colorsFor(dark, accent, AppStyle.Studio)
-            assertEquals(colorsFor(dark, accent), classic)
+            assertEquals(colorsFor(dark, accent, AppStyle.Classic), classic)
             assertNotEquals(classic.bg, studio.bg)
             assertNotEquals(classic.s2, studio.s2)
             assertEquals(dark, studio.dark)
             assertEquals(if (dark) accent.dark else accent.light, studio.ac)
+        }
+    }
+
+    @Test fun `diff warning and status colours stay fixed across styles`() {
+        for (dark in listOf(false, true)) {
+            val classic = colorsFor(dark, Accents[0], AppStyle.Classic)
+            listOf(AppStyle.Studio, AppStyle.Material).forEach { style ->
+                val other = colorsFor(dark, Accents[0], style)
+                assertEquals(classic.ab, other.ab)
+                assertEquals(classic.at, other.at)
+                assertEquals(classic.db, other.db)
+                assertEquals(classic.dt, other.dt)
+                assertEquals(classic.wb, other.wb)
+                assertEquals(classic.warn, other.warn)
+                assertEquals(classic.ok, other.ok)
+            }
         }
     }
 

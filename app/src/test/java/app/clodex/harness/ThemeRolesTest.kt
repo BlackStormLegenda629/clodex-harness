@@ -20,6 +20,7 @@ class ThemeRolesTest {
         assertEquals(scheme.primary, c.ac); assertEquals(scheme.onPrimary, c.onAc)
         assertEquals(scheme.surface, c.bg); assertEquals(scheme.onSurface, c.ink)
         assertEquals(scheme.surfaceContainerLow, c.s1); assertEquals(scheme.surfaceContainerHigh, c.s2)
-        assertEquals(scheme.outlineVariant, c.line); assertEquals(scheme.error, c.dt)
+        assertEquals(scheme.outlineVariant, c.line); assertEquals(scheme.error, c.error)
+        assertEquals(Color(0xFFF39A9A), c.dt)
     }
 }

@@ -39,7 +39,9 @@ private val LocalStyle = staticCompositionLocalOf { AppStyle.Classic }
 object H {
     val c: HColors @Composable @ReadOnlyComposable get() = LocalColors.current
     val t: HText @Composable @ReadOnlyComposable get() = LocalText.current
+    val style: AppStyle @Composable @ReadOnlyComposable get() = LocalStyle.current
     val studio: Boolean @Composable @ReadOnlyComposable get() = LocalStyle.current == AppStyle.Studio
+    val material: Boolean @Composable @ReadOnlyComposable get() = LocalStyle.current == AppStyle.Material
 }
 
 private fun animationsEnabled(ctx: Context): Boolean =

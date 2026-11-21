@@ -179,7 +179,7 @@ class ChatViewModel(private val c: AppContainer) : ViewModel() {
                 if (ctx.isNotEmpty()) append("\n\nКонтекст проекта:\n").append(ctx)
             }
             append(memory)
-            append(skillInstructions(c.skillRepo.skills.first(), if (s.cavemanInstalled) Caveman.prompt(s.cavemanIntensity) else ""))
+            append(skillInstructions(c.skillRepo.skills.first(), Caveman.block(s)))
         }.trim().ifEmpty { null }
 
         val rows = db.messages().list(chat.id).filter { it.role != Role.ERROR }

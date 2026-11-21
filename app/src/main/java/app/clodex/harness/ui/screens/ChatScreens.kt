@@ -212,7 +212,7 @@ private fun ConnectorSuggestions(prompt: String, connectors: List<app.clodex.har
         val connector = connectors.firstOrNull { it.id == entry.id } ?: return@forEach
         val connected = connector.status == app.clodex.harness.data.ConStatus.ON
         val shape = RoundedCornerShape(HDim.card)
-        Row(Modifier.fillMaxWidth().clip(shape).background(H.c.s1).padding(14.dp),
+        Row(Modifier.fillMaxWidth().hCard(shape).padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             ConnectorMark(connector, 36.dp)
             Column(Modifier.weight(1f)) {
@@ -254,7 +254,7 @@ fun ToolApprovalBar(p: PendingToolCall, onAllow: () -> Unit, onDeny: () -> Unit,
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Column(
-        Modifier.fillMaxWidth().clip(shape).background(c.s1).padding(16.dp),
+        Modifier.fillMaxWidth().hCard(shape).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -324,7 +324,7 @@ fun AssistantBlocks(text: String, onHtmlPreview: ((String) -> Unit)? = null) {
                     if (onHtmlPreview != null && isHtmlReply(b.lang, b.body)) {
                         val shape = RoundedCornerShape(HDim.card)
                         Row(
-                            Modifier.fillMaxWidth().clip(shape).background(c.s1)
+                            Modifier.fillMaxWidth().hCard(shape)
                                 .hClick(onClick = { onHtmlPreview(b.body) }).padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
@@ -349,7 +349,7 @@ fun CodeBlock(lang: String, body: String) {
     val c = H.c; val t = H.t
     val ctx = LocalContext.current; val toasts = LocalToasts.current
     val shape = RoundedCornerShape(HDim.card)
-    Column(Modifier.fillMaxWidth().clip(shape).background(c.s1)) {
+    Column(Modifier.fillMaxWidth().hCard(shape)) {
         Row(Modifier.fillMaxWidth().background(c.s2).padding(start = 14.dp, end = 6.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Text(lang.ifEmpty { "код" }, style = t.mono12, color = c.mu)
             Row(
@@ -369,7 +369,7 @@ fun ArtifactCard(a: ArtifactEntity, onOpen: () -> Unit, onDownload: () -> Unit) 
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Row(
-        Modifier.fillMaxWidth().clip(shape).background(c.s1).padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
+        Modifier.fillMaxWidth().hCard(shape).padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(Modifier.weight(1f).hClick(onClick = onOpen), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -397,7 +397,7 @@ fun Composer(
     )
     val shape = RoundedCornerShape(HDim.composer)
     val toolShape = RoundedCornerShape(HDim.chip)
-    Column(Modifier.fillMaxWidth().clip(shape).background(c.s1).padding(horizontal = 12.dp, vertical = 12.dp)) {
+    Column(Modifier.fillMaxWidth().hCard(shape).padding(horizontal = 12.dp, vertical = 12.dp)) {
         if (attachments.isNotEmpty()) {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 attachments.forEachIndexed { i, a ->

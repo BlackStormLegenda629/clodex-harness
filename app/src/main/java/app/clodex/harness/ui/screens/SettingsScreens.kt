@@ -46,16 +46,6 @@ import app.clodex.harness.ui.vm.SheetKind
 import app.clodex.harness.ui.vm.AppTab
 
 @Composable
-private fun NavRow(title: String, value: String? = null, sub: String? = null, icon: HIcon? = null, onClick: () -> Unit) {
-    Li(onClick = onClick) {
-        if (icon != null) IconPlate(icon, circle = true, size = 34.dp, iconSize = 17.dp, tint = H.c.ac, bg = H.c.ac.copy(alpha = 0.12f))
-        Titles(title, sub)
-        if (value != null) Text(value, style = H.t.row14, color = H.c.mu, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Ic(HIcon.Ch, tint = H.c.mu, size = 16.dp)
-    }
-}
-
-@Composable
 private fun ToggleRow(title: String, on: Boolean, sub: String? = null, icon: HIcon? = null, onToggle: () -> Unit) {
     Li(onClick = onToggle, role = Role.Switch) {
         if (icon != null) IconPlate(icon, circle = true, size = 34.dp, iconSize = 17.dp, tint = H.c.ac, bg = H.c.ac.copy(alpha = 0.12f))
@@ -100,28 +90,28 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                 "root" -> {
                     Sg("Подключения")
                     GrpOf(
-                        { NavRow("Провайдер", s.activeProvider().name, s.model, HIcon.Plug) { nav.settings("prov") } },
-                        { NavRow("Скиллы", "${skills.count { it.enabled }} вкл.", icon = HIcon.Pen) { nav.settings("skills") } },
-                        { NavRow("Коннекторы", "${cons.count { it.status == ConStatus.ON }} подключено", icon = HIcon.Globe) { nav.settings("mcp") } },
-                        { NavRow("Токен GitHub", if (s.githubToken.isBlank()) "не задан" else "задан", icon = HIcon.Branch) { nav.settings("ghtoken") } },
+                        { ActionRow("Провайдер", s.activeProvider().name, s.model, HIcon.Plug) { nav.settings("prov") } },
+                        { ActionRow("Скиллы", "${skills.count { it.enabled }} вкл.", icon = HIcon.Pen) { nav.settings("skills") } },
+                        { ActionRow("Коннекторы", "${cons.count { it.status == ConStatus.ON }} подключено", icon = HIcon.Globe) { nav.settings("mcp") } },
+                        { ActionRow("Токен GitHub", if (s.githubToken.isBlank()) "не задан" else "задан", icon = HIcon.Branch) { nav.settings("ghtoken") } },
                     )
                     Sg("Агент")
                     GrpOf(
-                        { NavRow("Программирование", icon = HIcon.Code) { nav.settings("coding") } },
-                        { NavRow("Разрешения", icon = HIcon.Lock) { nav.settings("perm") } },
-                        { NavRow("Поиск в интернете", icon = HIcon.Globe) { nav.settings("search") } },
-                        { NavRow("Запланированные сообщения", icon = HIcon.Wait) { nav.settings("schedule") } },
-                        { NavRow("Инструкции", icon = HIcon.Docp) { nav.settings("instr") } },
-                        { NavRow("Рабочие папки", s.workDirs.size.toString(), icon = HIcon.Folder) { nav.settings("dirs") } },
+                        { ActionRow("Программирование", icon = HIcon.Code) { nav.settings("coding") } },
+                        { ActionRow("Разрешения", icon = HIcon.Lock) { nav.settings("perm") } },
+                        { ActionRow("Поиск в интернете", icon = HIcon.Globe) { nav.settings("search") } },
+                        { ActionRow("Запланированные сообщения", icon = HIcon.Wait) { nav.settings("schedule") } },
+                        { ActionRow("Инструкции", icon = HIcon.Docp) { nav.settings("instr") } },
+                        { ActionRow("Рабочие папки", s.workDirs.size.toString(), icon = HIcon.Folder) { nav.settings("dirs") } },
                     )
                     Sg("Приложение")
                     GrpOf(
-                        { NavRow("Внешний вид", icon = HIcon.Img) { nav.settings("look") } },
-                        { NavRow("Уведомления", icon = HIcon.Wait) { nav.settings("notif") } },
-                        { NavRow("Данные и приватность", icon = HIcon.Trash) { nav.settings("priv") } },
-                        { NavRow("О приложении", icon = HIcon.Stack) { nav.settings("about") } },
-                        { NavRow("Обновления", icon = HIcon.Dl) { nav.settings("updates") } },
-                        { NavRow("Руководство по настройке", icon = HIcon.Docp) { nav.settings("setup") } },
+                        { ActionRow("Внешний вид", icon = HIcon.Img) { nav.settings("look") } },
+                        { ActionRow("Уведомления", icon = HIcon.Wait) { nav.settings("notif") } },
+                        { ActionRow("Данные и приватность", icon = HIcon.Trash) { nav.settings("priv") } },
+                        { ActionRow("О приложении", icon = HIcon.Stack) { nav.settings("about") } },
+                        { ActionRow("Обновления", icon = HIcon.Dl) { nav.settings("updates") } },
+                        { ActionRow("Руководство по настройке", icon = HIcon.Docp) { nav.settings("setup") } },
                     )
                 }
                 "prov" -> {
@@ -177,7 +167,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                             IconBtn(HIcon.X, "Отозвать разрешение", { sv.revokeMcp(grant) })
                         } }
                     }
-                    GrpOf({ NavRow("Управлять подключениями", icon = HIcon.Plug) { nav.settings("mcp") } })
+                    GrpOf({ ActionRow("Управлять подключениями", icon = HIcon.Plug) { nav.settings("mcp") } })
                 }
                 "search" -> {
                     val provider = s.activeProvider()
@@ -185,7 +175,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     val supported = !provider.openAi || router
                     val enabled = s.on("web")
                     Sg("Активный провайдер")
-                    GrpOf({ NavRow("Выбрать провайдера", provider.name, icon = HIcon.Plug) { nav.settings("prov") } })
+                    GrpOf({ ActionRow("Выбрать провайдера", provider.name, icon = HIcon.Plug) { nav.settings("prov") } })
                     Sg("Веб-поиск")
                     GrpOf({
                         if (supported || enabled) ToggleRow("Поиск в интернете", enabled, icon = HIcon.Globe) { sv.toggle("web") }
@@ -271,7 +261,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                 "priv" -> {
                     GrpOf(
                         { ToggleRow("Сохранять историю чатов", s.on("p1"), icon = HIcon.Chat) { sv.toggle("p1") } },
-                        { NavRow("Общая память", icon = HIcon.Lock) { nav.push("memory/0") } },
+                        { ActionRow("Общая память", icon = HIcon.Lock) { nav.push("memory/0") } },
                     )
                     Box(Modifier.fillMaxWidth().padding(20.dp)) {
                         Btn("Удалить все данные", { vms.app.open(SheetKind.WipeConfirm) }, Modifier.fillMaxWidth(), danger = true, icon = HIcon.Trash)
@@ -283,8 +273,8 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     SheetNote("Android-клиент для чата с ИИ и работы с кодом в локальных папках и репозиториях GitHub.", Modifier.padding(horizontal = 20.dp))
                     GrpOf(
                         { Li { Text("Версия", style = H.t.body, color = H.c.ink, modifier = Modifier.weight(1f)); Text(ver, style = H.t.row14, color = H.c.mu) } },
-                        { NavRow("Лицензии", icon = HIcon.Docp) { vms.app.open(SheetKind.Licenses) } },
-                        { NavRow("Обновления", icon = HIcon.Dl) { nav.settings("updates") } },
+                        { ActionRow("Лицензии", icon = HIcon.Docp) { vms.app.open(SheetKind.Licenses) } },
+                        { ActionRow("Обновления", icon = HIcon.Dl) { nav.settings("updates") } },
                     )
                 }
                 "updates" -> {
@@ -294,16 +284,16 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                 "setup" -> {
                     Sg("Первый запуск")
                     GrpOf(
-                        { NavRow("1. Добавить провайдера", sub = "Укажите API-ключ и нажмите «Проверить и модели».", icon = HIcon.Plug) { nav.settings("prov") } },
-                        { NavRow("2. Выбрать модель", sub = "Выбор модели находится рядом с полем ввода.", icon = HIcon.Chat) {
+                        { ActionRow("1. Добавить провайдера", sub = "Укажите API-ключ и нажмите «Проверить и модели».", icon = HIcon.Plug) { nav.settings("prov") } },
+                        { ActionRow("2. Выбрать модель", sub = "Выбор модели находится рядом с полем ввода.", icon = HIcon.Chat) {
                             nav.toTab(AppTab.CHAT)
                             vms.app.open(SheetKind.Model)
                         } },
-                        { NavRow("3. Настроить рабочую папку", sub = "Для Code можно использовать локальную папку или указать репозиторий GitHub в сессии.", icon = HIcon.Folder) { nav.settings("dirs") } },
+                        { ActionRow("3. Настроить рабочую папку", sub = "Для Code можно использовать локальную папку или указать репозиторий GitHub в сессии.", icon = HIcon.Folder) { nav.settings("dirs") } },
                     )
                     Sg("Веб-поиск")
                     SheetNote("Выберите Anthropic или настройте OpenRouter как совместимый с OpenAI сервис. Затем в чате откройте меню «+» рядом с полем ввода и включите «Веб-поиск».", Modifier.padding(horizontal = 20.dp))
-                    GrpOf({ NavRow("Открыть настройки поиска", icon = HIcon.Globe) { nav.settings("search") } })
+                    GrpOf({ ActionRow("Открыть настройки поиска", icon = HIcon.Globe) { nav.settings("search") } })
                 }
                 "ghtoken" -> {
                     GrpOf({ LiField("Персональный токен GitHub", s.githubToken, { sv.set(K.githubToken, it) }, "ghp_…", password = true) })

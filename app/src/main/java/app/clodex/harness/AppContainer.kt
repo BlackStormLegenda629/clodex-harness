@@ -81,8 +81,7 @@ class AppContainer(private val app: Application) {
     internal val scheduledProvider by lazy { RoutedProviderClient(settings, newScheduledHttp()) }
     private val codeAgent by lazy {
         DefaultCodeAgent(app, http, settings, provider, db::memoryFor, {
-            val s = settings.flow.first()
-            skillInstructions(skillRepo.skills.first(), if (s.cavemanInstalled) Caveman.prompt(s.cavemanIntensity) else "")
+            skillInstructions(skillRepo.skills.first(), Caveman.block(settings.flow.first()))
         })
     }
     val skillFetcher: SkillFetcher by lazy { GitHubSkillFetcher(http, settings) }

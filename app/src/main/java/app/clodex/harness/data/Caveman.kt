@@ -23,6 +23,10 @@ object Caveman {
         "caveman-verify",
     )
 
+    /** Empty unless Caveman is installed, so every prompt path asks the same question. */
+    fun block(settings: AppSettings): String =
+        if (settings.cavemanInstalled) prompt(settings.cavemanIntensity) else ""
+
     /** Style block appended last to the system prompt while Caveman is installed. */
     fun prompt(intensity: CavemanIntensity): String = buildString {
         append("# Reply style: Caveman ").append(intensity.label).append(" (active)\n")

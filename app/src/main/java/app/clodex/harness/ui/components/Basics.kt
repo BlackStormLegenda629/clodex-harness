@@ -213,7 +213,7 @@ fun Srch(value: String, onChange: (String) -> Unit, placeholder: String, modifie
     val shape = RoundedCornerShape(HDim.input)
     Row(
         modifier.fillMaxWidth().padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 12.dp).height(52.dp)
-            .clip(shape).background(c.s1).padding(horizontal = 16.dp),
+            .hCard(shape).padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Ic(HIcon.Search, tint = c.mu)
@@ -263,7 +263,7 @@ fun Dock(content: @Composable ColumnScope.() -> Unit) {
 fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
     val c = H.c
     val m = LocalMotion.current
-    BoxWithConstraints(Modifier.fillMaxWidth().height(80.dp).clip(RoundedCornerShape(28.dp)).background(c.s1).padding(4.dp)) {
+    BoxWithConstraints(Modifier.fillMaxWidth().height(HDim.tabsBar).clip(RoundedCornerShape(28.dp)).background(c.s1).padding(4.dp)) {
         val index = items.indexOfFirst { it.third }.coerceAtLeast(0)
         val tabW = maxWidth / items.size
         val x by animateDpAsState(tabW * index + (tabW - 64.dp) / 2, m.spec(320, Rise), label = "tabIndicator")

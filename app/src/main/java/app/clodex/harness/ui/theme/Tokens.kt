@@ -21,15 +21,28 @@ data class HColors(
     val bg: Color, val s1: Color, val s2: Color, val line: Color, val ink: Color, val mu: Color,
     val warn: Color, val ok: Color, val bb: Color, val bt: Color, val ab: Color, val at: Color,
     val db: Color, val dt: Color, val wb: Color, val onAc: Color,
-    val ac: Color, val dark: Boolean,
-)
+    val ac: Color, val dark: Boolean, val error: Color,
+) {
+    // M3 role names are aliases over the existing slots, so call sites did not need renaming.
+    val primary: Color get() = ac
+    val onPrimary: Color get() = onAc
+    val primaryContainer: Color get() = bb
+    val onPrimaryContainer: Color get() = bt
+    val secondaryContainer: Color get() = s2
+    val surface: Color get() = s1
+    val surfaceContainerLow: Color get() = s1
+    val surfaceContainerHigh: Color get() = s2
+    val surfaceContainerHighest: Color get() = s2
+    val outline: Color get() = mu
+    val outlineVariant: Color get() = line
+}
 
 private val LightBase = HColors(
     bg = Color(0xFFF7F7F8), s1 = Color(0xFFFFFFFF), s2 = Color(0xFFEEEFF1), line = Color(0xFFDFE0E3),
     ink = Color(0xFF1A1B1E), mu = Color(0xFF5F6269), warn = Color(0xFF9A3412), ok = Color(0xFF1F6B5C),
     bb = Color(0xFFE6EDFB), bt = Color(0xFF1D4ED8), ab = Color(0xFFE7F4EE), at = Color(0xFF14573F),
     db = Color(0xFFFDECEC), dt = Color(0xFF9B1C1C), wb = Color(0xFFFBEBD9), onAc = Color(0xFFFFFFFF),
-    ac = Color(0xFF8C5142), dark = false,
+    ac = Color(0xFF8C5142), dark = false, error = Color(0xFF9B1C1C),
 )
 
 private val DarkBase = HColors(
@@ -37,7 +50,7 @@ private val DarkBase = HColors(
     ink = Color(0xFFF1F1F2), mu = Color(0xFFABADB4), warn = Color(0xFFF0925A), ok = Color(0xFF5BBF9F),
     bb = Color(0xFF1B2740), bt = Color(0xFF9DBBFF), ab = Color(0xFF12291F), at = Color(0xFF86DDB5),
     db = Color(0xFF2E1717), dt = Color(0xFFF39A9A), wb = Color(0xFF3A2410), onAc = Color(0xFF151516),
-    ac = Color(0xFFDCA18F), dark = true,
+    ac = Color(0xFFDCA18F), dark = true, error = Color(0xFFF39A9A),
 )
 
 private val StudioLight = LightBase.copy(
@@ -51,35 +64,33 @@ private val StudioDark = DarkBase.copy(
 )
 
 /** Fallback Material You palette for Android 8–11 and devices without dynamic color. */
-private val MaterialLight = HColors(
+private val MaterialLight = LightBase.copy(
     bg = Color(0xFFFEF7FF), s1 = Color(0xFFF7F2FA), s2 = Color(0xFFECE6F0), line = Color(0xFFCAC4D0),
-    ink = Color(0xFF1D1B20), mu = Color(0xFF49454F), warn = Color(0xFF9A3412), ok = Color(0xFF1F6B5C),
-    bb = Color(0xFFE8DEF8), bt = Color(0xFF1D192B), ab = Color(0xFFE7F4EE), at = Color(0xFF14573F),
-    db = Color(0xFFF9DEDC), dt = Color(0xFFB3261E), wb = Color(0xFFFBEBD9), onAc = Color(0xFFFFFFFF),
-    ac = Color(0xFF5B4B8A), dark = false,
+    ink = Color(0xFF1D1B20), mu = Color(0xFF49454F), bb = Color(0xFFE8DEF8), bt = Color(0xFF1D192B),
+    ac = Color(0xFF5B4B8A),
 )
 
-private val MaterialDark = HColors(
+private val MaterialDark = DarkBase.copy(
     bg = Color(0xFF141218), s1 = Color(0xFF1D1B20), s2 = Color(0xFF2B2930), line = Color(0xFF49454F),
-    ink = Color(0xFFE6E0E9), mu = Color(0xFFCAC4D0), warn = Color(0xFFF0925A), ok = Color(0xFF5BBF9F),
-    bb = Color(0xFF4A4458), bt = Color(0xFFE8DEF8), ab = Color(0xFF12291F), at = Color(0xFF86DDB5),
-    db = Color(0xFF8C1D18), dt = Color(0xFFF2B8B5), wb = Color(0xFF3A2410), onAc = Color(0xFF332D41),
-    ac = Color(0xFFCFBCFF), dark = true,
+    ink = Color(0xFFE6E0E9), mu = Color(0xFFCAC4D0), bb = Color(0xFF4A4458), bt = Color(0xFFE8DEF8),
+    ac = Color(0xFFCFBCFF), onAc = Color(0xFF332D41),
 )
 
-/** Maps Material roles onto the app's semantic slots; foregrounds always come from `on*` roles. */
-fun materialColors(scheme: ColorScheme, dark: Boolean): HColors = HColors(
-    bg = scheme.surface, s1 = scheme.surfaceContainerLow, s2 = scheme.surfaceContainerHigh,
-    line = scheme.outlineVariant, ink = scheme.onSurface, mu = scheme.onSurfaceVariant,
-    warn = if (dark) Color(0xFFF0925A) else Color(0xFF9A3412),
-    ok = if (dark) Color(0xFF5BBF9F) else Color(0xFF1F6B5C),
-    bb = scheme.primaryContainer, bt = scheme.onPrimaryContainer,
-    ab = if (dark) Color(0xFF12291F) else Color(0xFFE7F4EE),
-    at = if (dark) Color(0xFF86DDB5) else Color(0xFF14573F),
-    db = scheme.errorContainer, dt = scheme.error,
-    wb = if (dark) Color(0xFF3A2410) else Color(0xFFFBEBD9),
-    onAc = scheme.onPrimary, ac = scheme.primary, dark = dark,
-)
+/**
+ * Maps Material roles onto the app's semantic slots; foregrounds always come from `on*` roles.
+ * Diff, warning and status colours stay fixed against wallpaper-derived surfaces.
+ */
+fun materialColors(scheme: ColorScheme, dark: Boolean): HColors {
+    val base = if (dark) DarkBase else LightBase
+    return HColors(
+        bg = scheme.surface, s1 = scheme.surfaceContainerLow, s2 = scheme.surfaceContainerHigh,
+        line = scheme.outlineVariant, ink = scheme.onSurface, mu = scheme.onSurfaceVariant,
+        warn = base.warn, ok = base.ok,
+        bb = scheme.primaryContainer, bt = scheme.onPrimaryContainer,
+        ab = base.ab, at = base.at, db = base.db, dt = base.dt, wb = base.wb,
+        onAc = scheme.onPrimary, ac = scheme.primary, dark = dark, error = scheme.error,
+    )
+}
 
 /** Accent names are persisted in settings. */
 data class Accent(val name: String, val light: Color, val dark: Color)
@@ -94,7 +105,7 @@ val Accents = listOf(
 /** Material You takes its accent from the system wallpaper, so the manual picker is hidden there. */
 fun manualAccentAvailable(style: AppStyle): Boolean = style != AppStyle.Material
 
-fun colorsFor(dark: Boolean, accent: Accent, style: AppStyle = AppStyle.Classic): HColors =
+fun colorsFor(dark: Boolean, accent: Accent, style: AppStyle): HColors =
     when (style) {
         AppStyle.Classic -> (if (dark) DarkBase else LightBase).copy(ac = if (dark) accent.dark else accent.light)
         AppStyle.Studio -> (if (dark) StudioDark else StudioLight).copy(ac = if (dark) accent.dark else accent.light)
@@ -109,7 +120,7 @@ object HDim {
     val pill = 24.dp
     val iconBtn = 40.dp
     val chip = 18.dp
-    val tabsBar = 72.dp
+    val tabsBar = 80.dp
     val content = 20.dp
     val header = 64.dp
     val userMsgBig = 20.dp

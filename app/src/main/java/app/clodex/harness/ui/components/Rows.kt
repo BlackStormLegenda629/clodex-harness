@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -43,12 +44,20 @@ fun Sg(text: String) {
     Text(text, style = H.t.row14Semi, color = H.c.ac, modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 8.dp))
 }
 
+/** Filled M3 card; Classic and Studio keep the thin border, Material You does not. */
+@Composable
+fun Modifier.hCard(shape: Shape, color: Color? = null): Modifier {
+    val c = H.c
+    return clip(shape).background(color ?: c.s1)
+        .then(if (H.material) Modifier else Modifier.border(1.dp, c.line, shape))
+}
+
 /** Bordered card with hairline dividers between rows; every row rises in with the prototype's stagger. */
 @Composable
 fun <T> Grp(items: List<T>, modifier: Modifier = Modifier.padding(horizontal = 20.dp), animate: Boolean = true, row: @Composable (item: T, index: Int) -> Unit) {
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
-    Column(modifier.fillMaxWidth().clip(shape).background(c.s1)) {
+    Column(modifier.fillMaxWidth().hCard(shape)) {
         items.forEachIndexed { i, it ->
             Box(
                 Modifier.fillMaxWidth().then(if (animate) Modifier.rise(i) else Modifier)
@@ -130,14 +139,24 @@ fun RowScope.Titles(title: String, sub: String? = null, mono: Boolean = false, w
     }
 }
 
+/** Settings row: optional tonal icon, title/subtitle, value and a chevron. */
+@Composable
+fun ActionRow(title: String, value: String? = null, sub: String? = null, icon: HIcon? = null, onClick: () -> Unit) {
+    Li(onClick = onClick) {
+        if (icon != null) IconPlate(icon)
+        Titles(title, sub)
+        if (value != null) Text(value, style = H.t.row14, color = H.c.mu, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Ic(HIcon.Ch, tint = H.c.mu, size = 16.dp)
+    }
+}
+
 /** .r2 — sheet row on a surface card. */
 @Composable
 fun R2(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, role: Role? = null, content: @Composable RowScope.() -> Unit) {
-    val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Row(
         modifier.fillMaxWidth().padding(bottom = 8.dp).then(if (onClick != null) Modifier.hClick(role = role ?: Role.Button, onClick = onClick) else Modifier)
-            .clip(shape).background(c.s1).heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 14.dp),
+            .hCard(shape).heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), content = content,
     )
 }

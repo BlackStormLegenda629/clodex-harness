@@ -112,7 +112,7 @@ private fun SessionRow(s: SessionEntity, ws: WorkspaceEntity?, onClick: () -> Un
     val shape = RoundedCornerShape(HDim.card)
     Row(
         Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 8.dp).rise(index).hClick(onClick = onClick)
-            .clip(shape).background(c.s1).padding(16.dp),
+            .hCard(shape).padding(16.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         StatusDot(s.status, s.perm)
@@ -145,7 +145,7 @@ fun ColumnScope.CodeBody() {
         val shape = RoundedCornerShape(HDim.card)
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).hClick { vms.app.open(SheetKind.Workspace) }
-                .clip(shape).background(c.s1).padding(16.dp),
+                .hCard(shape).padding(16.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             IconPlate(HIcon.Branch)
@@ -241,7 +241,7 @@ private fun ApprovalCard(ses: SessionEntity, ws: WorkspaceEntity?, pending: List
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     TNode(HIcon.Wait, c.warn, c.wb, "Нужно подтверждение", true) {
-        Column(Modifier.padding(top = 8.dp).fillMaxWidth().clip(shape).background(c.s1).padding(16.dp)) {
+        Column(Modifier.padding(top = 8.dp).fillMaxWidth().hCard(shape).padding(16.dp)) {
             Text("Применить изменения", style = H.t.row14Med, color = c.ink)
             Text(
                 if (ws?.kind == "gh") "Будет создан коммит в ветке ${ses.branch} репозитория ${ws.path}." else "Файлы будут записаны в папку «${ses.repo}».",
@@ -416,7 +416,7 @@ fun DiffScreen(id: Long) {
             )
             val lines = remember(cur.id) { numbered(TextDiff.lines(cur.beforeText, cur.afterText)) }
             val shape = RoundedCornerShape(HDim.card)
-            Box(Modifier.padding(horizontal = 20.dp).fillMaxWidth().clip(shape).background(c.s1)) {
+            Box(Modifier.padding(horizontal = 20.dp).fillMaxWidth().hCard(shape)) {
                 Column(Modifier.horizontalScroll(rememberScrollState()).widthIn(min = 320.dp).width(IntrinsicSize.Max)) {
                     lines.take(MAX_DIFF_LINES).forEach { l ->
                         val (bg, fg, mark) = when (l.kind) { DiffKind.ADD -> Triple(c.ab, c.at, '+'); DiffKind.DEL -> Triple(c.db, c.dt, '-'); else -> Triple(Color.Transparent, c.ink, ' ') }
