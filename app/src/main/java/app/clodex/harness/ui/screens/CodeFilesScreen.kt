@@ -22,9 +22,9 @@ import kotlinx.coroutines.CancellationException
 @Composable
 private fun CodeDialog(title: String, close: () -> Unit, back: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     Dialog(back ?: close, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Box(Modifier.padding(16.dp).widthIn(max = 520.dp).fillMaxWidth().fillMaxHeight(0.65f)) {
-            Surface(color = H.c.bg, shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)) {
-                Column(Modifier.fillMaxSize().padding(16.dp)) {
+        Box(Modifier.padding(16.dp).widthIn(max = 560.dp).fillMaxWidth().fillMaxHeight(0.7f)) {
+            Surface(color = H.c.bg, shape = androidx.compose.foundation.shape.RoundedCornerShape(app.clodex.harness.ui.theme.HDim.sheetTop)) {
+                Column(Modifier.fillMaxSize().padding(20.dp)) {
                     SheetHeader(title, close, back)
                     content()
                 }
@@ -73,7 +73,7 @@ fun CodeFilesDialog(ws: WorkspaceEntity, ref: String, open: suspend (WorkspaceEn
                                 else -> null
                             }
                             Li(onClick = click) {
-                                Ic(if (entry.dir) HIcon.Folder else HIcon.File, tint = H.c.mu)
+                                IconPlate(if (entry.dir) HIcon.Folder else HIcon.File, size = 36.dp, iconSize = 18.dp)
                                 Text(entry.path.name, color = H.c.ink, style = H.t.body, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 if (entry.dir || html) Text(if (html) "Просмотр" else "›", color = H.c.ac, style = H.t.small)
                             }
