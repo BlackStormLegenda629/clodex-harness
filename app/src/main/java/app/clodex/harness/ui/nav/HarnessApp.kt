@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -91,7 +92,7 @@ fun MainScreen() {
                     transitionSpec = { fadeIn(m.spec(240, Ease)) togetherWith fadeOut(m.spec(240, Ease)) }, label = "tab",
                 ) { TabContent(it, prefill) }
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Column(Modifier.widthIn(max = 980.dp).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { TabDock(tab, text, { text = it }) }
+                    Column(Modifier.widthIn(max = 1000.dp).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { TabDock(tab, text, { text = it }) }
                 }
             }
         }
@@ -111,7 +112,7 @@ fun MainScreen() {
 @Composable
 private fun TabContent(t: AppTab, onPrefill: ((String) -> Unit)?) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.widthIn(max = 980.dp).fillMaxSize()) {
+        Column(Modifier.widthIn(max = 1000.dp).fillMaxSize()) {
             when (t) {
                 AppTab.CHAT -> { ChatHeader(); ChatBody(onPrefill) }
                 AppTab.PROJ -> { ProjectsHeader(); ProjectsBody() }
@@ -150,6 +151,22 @@ private fun TabDock(t: AppTab, text: String, onText: (String) -> Unit) {
     }
 }
 
+/** Material You navigation item: 56dp pill with a tonal selected state. */
+@Composable
+private fun RailItem(label: String, icon: HIcon, selected: Boolean, onClick: () -> Unit) {
+    val c = H.c
+    Row(
+        Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(28.dp))
+            .background(if (selected) c.ac.copy(alpha = 0.16f) else Color.Transparent)
+            .hClick(role = Role.Tab, onClick = onClick).semantics { this.selected = selected }
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Ic(icon, tint = if (selected) c.ac else c.mu, size = 22.dp)
+        Text(label, style = H.t.tab.copy(fontSize = 12.sp), color = if (selected) c.ac else c.mu, modifier = Modifier.weight(1f))
+    }
+}
+
 /** Desktop-style navigation rail: brand, tabs, recent chats, settings. */
 @Composable
 private fun Sidebar(tab: AppTab) {
@@ -164,7 +181,7 @@ private fun Sidebar(tab: AppTab) {
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(Modifier.width(34.dp).height(34.dp).clip(RoundedCornerShape(9.dp)).background(c.s2), contentAlignment = Alignment.Center) {
+            Box(Modifier.width(40.dp).height(40.dp).clip(RoundedCornerShape(20.dp)).background(c.ac.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
                 Text("C", style = H.t.ctl, color = c.ac)
             }
             Column(Modifier.weight(1f)) {
@@ -175,23 +192,7 @@ private fun Sidebar(tab: AppTab) {
         }
         Spacer(10.dp)
         AppTab.entries.forEach { t ->
-            val on = t == tab
-            Box(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background(if (on) c.s2 else Color.Transparent)
-                    .hClick(role = Role.Tab) { vms.app.setTab(t) }.semantics { selected = on },
-            ) {
-                if (on) {
-                    Box(Modifier.align(Alignment.CenterStart).width(3.dp).height(20.dp)
-                        .background(c.ac, RoundedCornerShape(2.dp)))
-                }
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Ic(t.icon, tint = if (on) c.ac else c.mu, size = 20.dp)
-                    Text(t.label, style = H.t.bodyMed, color = if (on) c.ink else c.mu, modifier = Modifier.weight(1f))
-                }
-            }
+            RailItem(t.label, t.icon, t == tab) { vms.app.setTab(t) }
         }
         Spacer(12.dp)
         HorizontalDivider(color = c.line)
@@ -204,7 +205,7 @@ private fun Sidebar(tab: AppTab) {
             items(chats, key = { it.id }) { ch ->
                 val on = ch.id == current?.id
                 Column(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background(if (on) c.s2 else Color.Transparent)
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(if (on) c.ac.copy(alpha = 0.14f) else Color.Transparent)
                         .hClick { vms.chat.open(ch.id); vms.app.setTab(AppTab.CHAT) }.semantics { selected = on }
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                 ) {
@@ -220,9 +221,10 @@ private fun Sidebar(tab: AppTab) {
             HorizontalDivider(color = c.line)
             Spacer(8.dp)
             Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).hClick { nav.settings("root") }.padding(horizontal = 10.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) { Ic(HIcon.Gear, tint = c.mu); Text("Настройки", style = H.t.row14, color = c.mu, modifier = Modifier.weight(1f)) }
+                Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(28.dp)).background(c.s2)
+                    .hClick { nav.settings("root") }.padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) { Ic(HIcon.Gear, tint = c.ac); Text("Настройки", style = H.t.tab.copy(fontSize = 12.sp), color = c.ac, modifier = Modifier.weight(1f)) }
         }
     }
 }
