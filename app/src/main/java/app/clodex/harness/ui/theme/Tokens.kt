@@ -113,7 +113,7 @@ fun colorsFor(dark: Boolean, accent: Accent, style: AppStyle): HColors =
     }
 
 object HDim {
-    val card = 24.dp
+    val card = 16.dp
     val input = 16.dp
     val composer = 24.dp
     val sheetTop = 28.dp
@@ -164,7 +164,7 @@ class HText(val sans: FontFamily, val mono: FontFamily) {
     val sg = s(12f, ls = 0.72f)
     val btn = s(14f, FontWeight.Medium)
     val tab = s(11f, FontWeight.Medium)
-    val chip13 = s(13f)
+    val chip13 = s(14f, FontWeight.Medium, ls = 0.1f)
     val fab = s(15f, FontWeight.Medium)
     val empTitle = s(17f, FontWeight.Medium)
     val detTitle = s(20f, FontWeight.SemiBold)

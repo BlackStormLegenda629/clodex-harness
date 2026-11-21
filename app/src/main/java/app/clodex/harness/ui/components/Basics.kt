@@ -40,8 +40,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -59,6 +59,8 @@ import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -188,7 +190,8 @@ fun Btn(
             content = content,
         )
         primary -> Button(onClick = onClick, modifier = modifier, enabled = enabled, content = content)
-        tonal -> FilledTonalButton(
+        // Tonal is the default emphasis in Material You; `tonal` stays as a call-site-compatible alias.
+        tonal || !danger -> FilledTonalButton(
             onClick = onClick, modifier = modifier, enabled = enabled,
             colors = ButtonDefaults.filledTonalButtonColors(containerColor = c.bb, contentColor = c.bt),
             content = content,
@@ -241,19 +244,22 @@ fun Sw(on: Boolean, modifier: Modifier = Modifier, onToggle: (() -> Unit)? = nul
 @Composable
 fun Srch(value: String, onChange: (String) -> Unit, placeholder: String, modifier: Modifier = Modifier) {
     val c = H.c; val t = H.t
-    val shape = RoundedCornerShape(HDim.input)
-    Row(
-        modifier.fillMaxWidth().padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 12.dp).height(52.dp)
-            .hCard(shape).padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Ic(HIcon.Search, tint = c.mu)
-        BasicTextField(
-            value, onChange, singleLine = true, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ink),
-            modifier = Modifier.weight(1f).semantics { contentDescription = placeholder },
-            decorationBox = { inner -> Box(contentAlignment = Alignment.CenterStart) { if (value.isEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
-        )
-    }
+    TextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier.fillMaxWidth().padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 12.dp),
+        textStyle = t.body.copy(color = c.ink),
+        singleLine = true,
+        placeholder = { Text(placeholder, style = t.body, color = c.mu) },
+        leadingIcon = { Ic(HIcon.Search, tint = c.mu) },
+        shape = CircleShape,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = c.s2, unfocusedContainerColor = c.s2,
+            focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            cursorColor = c.ac, focusedTextColor = c.ink, unfocusedTextColor = c.ink,
+        ),
+    )
 }
 
 @Composable

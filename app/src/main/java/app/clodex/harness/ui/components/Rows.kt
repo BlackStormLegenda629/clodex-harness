@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,10 +25,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -44,11 +42,12 @@ fun Sg(text: String) {
     Text(text, style = H.t.row14Semi, color = H.c.ac, modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 8.dp))
 }
 
-/** Filled M3 card; Classic and Studio keep the thin border, Material You does not. */
+/** Filled M3 card: surface-container tone without a border; Classic and Studio keep the thin border. */
 @Composable
 fun Modifier.hCard(shape: Shape, color: Color? = null): Modifier {
     val c = H.c
-    return clip(shape).background(color ?: c.s1)
+    val fill = color ?: if (H.material) c.s2 else c.s1
+    return clip(shape).background(fill)
         .then(if (H.material) Modifier else Modifier.border(1.dp, c.line, shape))
 }
 
@@ -94,21 +93,27 @@ fun LiField(
     singleLine: Boolean = true, minLines: Int = 1, modifier: Modifier = Modifier,
 ) {
     val c = H.c; val t = H.t
-    Column(modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)) {
-        Text(label, style = t.small, color = c.mu)
-        Box(
-            Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(HDim.input)).background(c.s2).padding(12.dp),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            BasicTextField(
-                value, onChange, singleLine = singleLine, minLines = minLines, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ink),
-                visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
-                keyboardOptions = KeyboardOptions(keyboardType = if (password) KeyboardType.Password else KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth().semantics { contentDescription = label },
-                decorationBox = { inner -> Box { if (value.isEmpty() && placeholder.isNotEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
-            )
-        }
-    }
+    OutlinedTextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        textStyle = t.body.copy(color = c.ink),
+        label = { Text(label, style = t.body) },
+        placeholder = if (placeholder.isNotEmpty()) ({ Text(placeholder, style = t.body) }) else null,
+        singleLine = singleLine,
+        minLines = if (singleLine) 1 else minLines,
+        visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = KeyboardOptions(keyboardType = if (password) KeyboardType.Password else KeyboardType.Text),
+        shape = RoundedCornerShape(4.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = c.ink, unfocusedTextColor = c.ink,
+            focusedBorderColor = c.ac, unfocusedBorderColor = c.line,
+            focusedLabelColor = c.ac, unfocusedLabelColor = c.mu,
+            focusedPlaceholderColor = c.mu, unfocusedPlaceholderColor = c.mu,
+            cursorColor = c.ac,
+            focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
+        ),
+    )
 }
 
 /** .it — list row with a top hairline. */
@@ -124,7 +129,7 @@ fun It(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @C
 
 /** Material You tonal icon plate: circular by default, tinted with the accent. */
 @Composable
-fun IconPlate(icon: HIcon, circle: Boolean = true, size: Dp = 40.dp, iconSize: Dp = 20.dp, tint: Color = H.c.ac, bg: Color = H.c.ac.copy(alpha = 0.14f)) {
+fun IconPlate(icon: HIcon, circle: Boolean = true, size: Dp = 40.dp, iconSize: Dp = 20.dp, tint: Color = H.c.bt, bg: Color = H.c.bb) {
     Box(Modifier.size(size).clip(if (circle) CircleShape else RoundedCornerShape(HDim.chip)).background(bg), contentAlignment = Alignment.Center) {
         Ic(icon, tint = tint, size = iconSize)
     }
