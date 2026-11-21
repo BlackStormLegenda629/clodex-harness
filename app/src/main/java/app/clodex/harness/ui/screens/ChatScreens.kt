@@ -3,7 +3,6 @@ package app.clodex.harness.ui.screens
 import app.clodex.harness.ui.vm.SheetKind
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -174,7 +173,7 @@ fun androidx.compose.foundation.layout.ColumnScope.ChatBody(onPrefill: ((String)
 @Composable
 private fun StudioWelcome(onPrefill: ((String) -> Unit)?) {
     val c = H.c
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(HDim.chip)
     Column(
         Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -194,9 +193,9 @@ private fun StudioWelcome(onPrefill: ((String) -> Unit)?) {
                     "Составить план" to "Составь пошаговый план и предложи, с чего начать. Цель: ",
                 ).forEach { (label, prompt) ->
                     Box(
-                        Modifier.clip(shape).background(c.s1).border(1.dp, c.line, shape)
+                        Modifier.clip(shape).background(c.s2)
                             .hClick { onPrefill(prompt) }
-                            .heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 8.dp),
+                            .heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center,
                     ) { Text(label, style = H.t.btn, color = c.ink, textAlign = TextAlign.Center) }
                 }
@@ -212,9 +211,9 @@ private fun ConnectorSuggestions(prompt: String, connectors: List<app.clodex.har
     suggestions.forEach { entry ->
         val connector = connectors.firstOrNull { it.id == entry.id } ?: return@forEach
         val connected = connector.status == app.clodex.harness.data.ConStatus.ON
-        val shape = RoundedCornerShape(14.dp)
-        Row(Modifier.fillMaxWidth().clip(shape).background(H.c.s1).border(1.dp, H.c.line, shape).padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        val shape = RoundedCornerShape(HDim.card)
+        Row(Modifier.fillMaxWidth().clip(shape).background(H.c.s1).padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             ConnectorMark(connector, 36.dp)
             Column(Modifier.weight(1f)) {
                 Text(entry.name, style = H.t.bodyMed, color = H.c.ink)
@@ -233,7 +232,7 @@ fun ProviderOfferBar(o: ProviderOffer, onSwitch: () -> Unit, onDismiss: () -> Un
     Column(
         Modifier.fillMaxWidth().clip(shape)
             .background(c.s1)
-            .border(1.dp, c.warn.copy(alpha = 0.35f), shape).padding(14.dp),
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -255,7 +254,7 @@ fun ToolApprovalBar(p: PendingToolCall, onAllow: () -> Unit, onDeny: () -> Unit,
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Column(
-        Modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(14.dp),
+        Modifier.fillMaxWidth().clip(shape).background(c.s1).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -325,8 +324,8 @@ fun AssistantBlocks(text: String, onHtmlPreview: ((String) -> Unit)? = null) {
                     if (onHtmlPreview != null && isHtmlReply(b.lang, b.body)) {
                         val shape = RoundedCornerShape(HDim.card)
                         Row(
-                            Modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape)
-                                .hClick(onClick = { onHtmlPreview(b.body) }).padding(12.dp),
+                            Modifier.fillMaxWidth().clip(shape).background(c.s1)
+                                .hClick(onClick = { onHtmlPreview(b.body) }).padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             IconPlate(HIcon.Code)
@@ -349,8 +348,8 @@ fun AssistantBlocks(text: String, onHtmlPreview: ((String) -> Unit)? = null) {
 fun CodeBlock(lang: String, body: String) {
     val c = H.c; val t = H.t
     val ctx = LocalContext.current; val toasts = LocalToasts.current
-    val shape = RoundedCornerShape(14.dp)
-    Column(Modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape)) {
+    val shape = RoundedCornerShape(HDim.card)
+    Column(Modifier.fillMaxWidth().clip(shape).background(c.s1)) {
         Row(Modifier.fillMaxWidth().background(c.s2).padding(start = 14.dp, end = 6.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Text(lang.ifEmpty { "код" }, style = t.mono12, color = c.mu)
             Row(
@@ -370,7 +369,7 @@ fun ArtifactCard(a: ArtifactEntity, onOpen: () -> Unit, onDownload: () -> Unit) 
     val c = H.c
     val shape = RoundedCornerShape(HDim.card)
     Row(
-        Modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(start = 14.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+        Modifier.fillMaxWidth().clip(shape).background(c.s1).padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(Modifier.weight(1f).hClick(onClick = onOpen), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -397,13 +396,13 @@ fun Composer(
         onError = { toasts.show(it) },
     )
     val shape = RoundedCornerShape(HDim.composer)
-    val toolShape = RoundedCornerShape(10.dp)
-    Column(Modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(horizontal = 8.dp, vertical = 8.dp)) {
+    val toolShape = RoundedCornerShape(HDim.chip)
+    Column(Modifier.fillMaxWidth().clip(shape).background(c.s1).padding(horizontal = 12.dp, vertical = 12.dp)) {
         if (attachments.isNotEmpty()) {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 attachments.forEachIndexed { i, a ->
                     Row(
-                        Modifier.clip(toolShape).background(c.s2).padding(start = 10.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                        Modifier.clip(toolShape).background(c.s2).padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Ic(HIcon.File, size = 16.dp, tint = c.mu)
@@ -415,20 +414,20 @@ fun Composer(
         }
         BasicTextField(
             value, onValue, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ac), maxLines = 6,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp),
-            decorationBox = { inner -> Box(Modifier.heightIn(min = 36.dp), contentAlignment = Alignment.CenterStart) { if (value.isEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            decorationBox = { inner -> Box(Modifier.heightIn(min = 40.dp), contentAlignment = Alignment.CenterStart) { if (value.isEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
         )
         Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             IconBtn(HIcon.Plus, "Добавить", onPlus, tint = c.mu)
             Box(Modifier.weight(1f)) {
                 Row(
-                    Modifier.height(44.dp).clip(toolShape).background(c.s2).hClick(onClick = onModel).padding(horizontal = 8.dp),
+                    Modifier.height(44.dp).clip(toolShape).background(c.bb).hClick(onClick = onModel).padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     ProviderMark(providerId, providerName, 22.dp, model = model)
-                    Text(model, style = t.row14Med, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                    Text(effort, style = t.small, color = c.mu, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 56.dp))
-                    Ic(HIcon.Ch, tint = c.mu, size = 12.dp)
+                    Text(model, style = t.row14Med, color = c.bt, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    Text(effort, style = t.small, color = c.bt.copy(alpha = 0.75f), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 56.dp))
+                    Ic(HIcon.Ch, tint = c.bt, size = 12.dp)
                 }
             }
             IconBtn(HIcon.Mic, if (speech.listening) "Остановить запись" else "Голос", speech.toggle, circle = speech.listening, tint = if (speech.listening) c.ac else c.mu)
