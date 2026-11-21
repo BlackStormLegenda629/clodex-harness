@@ -152,28 +152,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     }
                     SheetNote("Активный провайдер отвечает в чатах. При лимите или нулевом балансе приложение предложит переключиться на другого. Свои серверы читают список моделей из /models.", Modifier.padding(horizontal = 20.dp))
                 }
-                "coding" -> {
-                    val mode by vms.code.mode.collectAsStateWithLifecycle()
-                    val workspace by vms.code.workspace.collectAsStateWithLifecycle()
-                    Sg("Рабочий процесс")
-                    GrpOf(
-                        { NavRow("Инструкции агента", sub = "Общие инструкции Chat и Code", icon = HIcon.Docp) { nav.settings("instr") } },
-                        { NavRow("Разрешения и поведение", mode, icon = HIcon.Lock) { nav.settings("perm") } },
-                    )
-                    Sg("Новые сессии Code")
-                    Grp(CodeMode.entries) { choice, _ -> RadioRow(choice.label, mode == choice.label) { vms.code.setMode(choice.label) } }
-                    GrpOf(
-                        { NavRow("Модель", s.model, s.activeProvider().name, HIcon.Plug) { vms.app.open(SheetKind.Model) } },
-                        { NavRow("Уровень усилий", s.effort, icon = HIcon.Code) { vms.app.open(SheetKind.Effort) } },
-                        { NavRow("Поиск в интернете", if (s.on("web")) "Вкл." else "Выкл.", icon = HIcon.Globe) { nav.settings("search") } },
-                    )
-                    Sg("Инструкции и скиллы")
-                    GrpOf({ NavRow("Скиллы", "${skills.count { it.enabled && it.body.isNotBlank() }} с инструкциями", icon = HIcon.Pen) { nav.settings("skills") } })
-                    SheetNote("Включённые скиллы с непустым текстом добавляются к запросам как инструкции. Они не устанавливают плагины и не дают доступ к запуску команд.", Modifier.padding(horizontal = 20.dp))
-                    Sg("Рабочая область")
-                    GrpOf({ NavRow("Сменить рабочую область", workspace, icon = HIcon.Folder) { vms.app.open(SheetKind.Workspace) } })
-                    SheetNote("Выбор области и режима не переносит существующие сессии и их правки. Модель, усилия, поиск и инструкции используются в следующих запросах Chat и Code. Code читает файлы и готовит изменения, но не запускает команды, сборки или тесты.", Modifier.padding(horizontal = 20.dp))
-                }
+                "coding" -> ProgrammingScreen()
                 "perm" -> {
                     val mode by vms.code.mode.collectAsStateWithLifecycle()
                     Sg("Режим новых сессий Code")
