@@ -25,16 +25,19 @@ import androidx.compose.ui.unit.dp
 import android.text.format.Formatter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import app.clodex.harness.ui.components.GrpOf
 import app.clodex.harness.ui.components.Li
 import app.clodex.harness.ui.components.SheetNote
 import app.clodex.harness.ui.components.Titles
 import app.clodex.harness.ui.components.TransferProgress
 import app.clodex.harness.ui.theme.LocalProgressStyle
+import app.clodex.harness.updates.ForegroundUpdateChecks
 import app.clodex.harness.updates.GitHubUpdates
 import app.clodex.harness.updates.ReleaseOffer
 import app.clodex.harness.updates.UnverifiedApkException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -57,15 +60,25 @@ internal fun UpdateControls(
     var permissionHelp by remember { mutableStateOf(false) }
     var downloaded by remember { mutableLongStateOf(0L) }
     val progressStyle = LocalProgressStyle.current
+    val checks = remember { ForegroundUpdateChecks() }
 
-    LaunchedEffect(automatic) {
+    // Like AndroidHarness: check on every foreground entry after a short settle delay,
+    // retry transient failures, and keep a one-minute cooldown after a successful check.
+    LaunchedEffect(automatic, lifecycle) {
         if (!automatic) return@LaunchedEffect
-        try {
-            offer = GitHubUpdates.check(context)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            // A failed background check must not interrupt normal app use.
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            delay(2_000)
+            checks.run {
+                try {
+                    GitHubUpdates.check(context)?.let { offer = it }
+                    true
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // A failed background check must not interrupt normal app use; the next pass retries.
+                    false
+                }
+            }
         }
     }
 

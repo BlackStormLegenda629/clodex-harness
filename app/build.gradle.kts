@@ -6,7 +6,8 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val updatesRepo = providers.gradleProperty("clodexUpdatesRepo").orElse("").get().trim()
+val updatesRepo = providers.gradleProperty("clodexUpdatesRepo")
+    .orElse("BlackStormLegenda629/clodex-harness").get().trim()
 require(updatesRepo.isEmpty() || (
     Regex("[A-Za-z0-9-]{1,39}/[A-Za-z0-9_.-]{1,100}").matches(updatesRepo) &&
         updatesRepo.substringAfter('/') !in setOf(".", "..")
