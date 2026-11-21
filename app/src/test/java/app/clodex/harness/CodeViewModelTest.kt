@@ -225,7 +225,7 @@ class CodeViewModelTest {
     @Test fun planMode_offersNoWriteTool() {
         val e = env(listOf(reply("План: 1. Прочитать App.kt")))
         val id = e.launch(mode = "План")
-        assertEquals(listOf("workspace_list", "workspace_read"), e.provider.requests.single().tools.map { it.name })
+        assertEquals(listOf("workspace_list", "workspace_read", "workspace_grep", "workspace_find"), e.provider.requests.single().tools.map { it.name })
         assertEquals(SesStatus.DONE, e.session(id).status)
     }
 

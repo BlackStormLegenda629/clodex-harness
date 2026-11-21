@@ -47,9 +47,9 @@ class CodeAgentToolsTest {
 
     @Test fun `plan mode has no write tool and all tools are provider safe`() {
         val overlay = WorkspaceOverlay(FakeWorkspaceGateway())
-        assertEquals(listOf("workspace_list", "workspace_read"), codeTools(overlay, CodeMode.PLAN).map { it.spec.name })
+        assertEquals(listOf("workspace_list", "workspace_read", "workspace_grep", "workspace_find"), codeTools(overlay, CodeMode.PLAN).map { it.spec.name })
         val edits = codeTools(overlay, CodeMode.EDITS)
-        assertEquals(listOf("workspace_list", "workspace_read", "workspace_write"), edits.map { it.spec.name })
+        assertEquals(listOf("workspace_list", "workspace_read", "workspace_grep", "workspace_find", "workspace_write"), edits.map { it.spec.name })
         assertTrue(edits.all { it.spec.readOnly && app.clodex.harness.data.agent.AgentToolSpec.isValidName(it.spec.name) })
         val schema = tool(edits, "workspace_write").spec.inputSchema.toString()
         assertTrue(schema.contains("\"content\"") && schema.contains("\"required\""))

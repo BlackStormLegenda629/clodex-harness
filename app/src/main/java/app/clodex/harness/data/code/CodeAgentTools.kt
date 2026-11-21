@@ -10,6 +10,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
+import java.util.ArrayDeque
 
 /**
  * Staged edits on top of a workspace. Reads see staged text; nothing touches the workspace until the
@@ -72,6 +73,92 @@ object CodeToolNames {
     const val LIST = "workspace_list"
     const val READ = "workspace_read"
     const val WRITE = "workspace_write"
+    const val GREP = "workspace_grep"
+    const val FIND = "workspace_find"
+}
+
+/** Regex compilation for the grep tool: bounded input, failures returned as Result, never thrown. */
+internal object SearchArg {
+    const val MAX_PATTERN = 200
+    fun compileRegex(pattern: String, ignoreCase: Boolean = true): Result<Regex> {
+        if (pattern.isEmpty() || pattern.length > MAX_PATTERN) return Result.failure(IllegalArgumentException("pattern length"))
+        return runCatching { Regex(pattern, if (ignoreCase) setOf(RegexOption.IGNORE_CASE) else emptySet()) }
+    }
+}
+
+private fun searchSchema(): JsonObject = buildJsonObject {
+    put("type", "object")
+    putJsonObject("properties") {
+        putJsonObject("pattern") { put("type", "string"); put("description", "Регулярное выражение для grep или подстрока/шаблон имени для find.") }
+        putJsonObject("path") { put("type", "string"); put("description", "Папка для поиска, пусто — корень.") }
+    }
+    putJsonArray("required") { add(JsonPrimitive("pattern")) }
+}
+
+/** Shared BFS listing used by the search tools; results are path/line strings. */
+private suspend fun searchWorkspace(
+    overlay: WorkspaceOverlay,
+    root: WorkspacePath,
+    maxFiles: Int,
+    maxResults: Int,
+    match: (WorkspacePath, String) -> List<String>,
+): List<String> {
+    val out = ArrayList<String>()
+    val visited = HashSet<WorkspacePath>()
+    val queue = ArrayDeque(listOf(root))
+    var scanned = 0
+    while (queue.isNotEmpty() && out.size < maxResults && scanned < maxFiles) {
+        val dir = queue.removeFirst()
+        if (!visited.add(dir)) continue
+        val entries = overlay.list(dir).getOrNull() ?: continue
+        for (entry in entries) {
+            if (out.size >= maxResults || scanned >= maxFiles) break
+            if (entry.dir) { queue.addLast(entry.path); continue }
+            if (!entry.text) continue
+            scanned++
+            val text = overlay.read(entry.path).getOrNull()?.text ?: continue
+            out += match(entry.path, text)
+        }
+    }
+    return out.take(maxResults)
+}
+
+private class GrepTool(private val overlay: WorkspaceOverlay) : AgentTool {
+    override val spec = AgentToolSpec(
+        CodeToolNames.GREP,
+        "Искать по содержимому файлов регулярным выражением. Результат: путь:строка: текст.",
+        searchSchema(), readOnly = true, title = "Рабочая область · поиск по содержимому",
+    )
+    override suspend fun invoke(arguments: JsonObject): AgentToolResult {
+        val pattern = arguments.text("pattern") ?: return AgentToolResult.error("Нет аргумента pattern")
+        val regex = SearchArg.compileRegex(pattern).getOrElse { return AgentToolResult.error("Неверное выражение: ${it.message}") }
+        val root = pathArg(arguments).getOrElse { return AgentToolResult.error(it.message!!) }
+        val lines = searchWorkspace(overlay, root, maxFiles = 400, maxResults = 30) { path, text ->
+            text.lineSequence().mapIndexedNotNull { index, line ->
+                if (regex.containsMatchIn(line)) "${path.value}:${index + 1}: ${line.trim()}" else null
+            }.toList()
+        }
+        if (lines.isEmpty()) return AgentToolResult.of("Совпадений не найдено")
+        return AgentToolResult.of(lines.joinToString("\n"))
+    }
+}
+
+private class FindTool(private val overlay: WorkspaceOverlay) : AgentTool {
+    override val spec = AgentToolSpec(
+        CodeToolNames.FIND,
+        "Найти файлы по подстроке в имени. Результат: пути.",
+        searchSchema(), readOnly = true, title = "Рабочая область · поиск по имени",
+    )
+    override suspend fun invoke(arguments: JsonObject): AgentToolResult {
+        val pattern = arguments.text("pattern") ?: return AgentToolResult.error("Нет аргумента pattern")
+        val needle = pattern.lowercase()
+        val root = pathArg(arguments).getOrElse { return AgentToolResult.error(it.message!!) }
+        val found = searchWorkspace(overlay, root, maxFiles = 400, maxResults = 100) { path, _ ->
+            if (path.name.lowercase().contains(needle)) listOf(path.value) else emptyList()
+        }
+        if (found.isEmpty()) return AgentToolResult.of("Файлов не найдено")
+        return AgentToolResult.of(found.joinToString("\n"))
+    }
 }
 
 private fun pathSchema(withContent: Boolean) = buildJsonObject {
@@ -132,7 +219,10 @@ private class WriteTool(private val overlay: WorkspaceOverlay, private val mode:
 
 /** `План` gets no write tool at all. */
 fun codeTools(overlay: WorkspaceOverlay, mode: CodeMode): List<AgentTool> =
-    listOfNotNull(ListTool(overlay), ReadTool(overlay), if (mode == CodeMode.PLAN) null else WriteTool(overlay, mode))
+    listOfNotNull(
+        ListTool(overlay), ReadTool(overlay), GrepTool(overlay), FindTool(overlay),
+        if (mode == CodeMode.PLAN) null else WriteTool(overlay, mode),
+    )
 
 /** Timeline title for a finished code tool call, built from its real arguments. */
 fun codeEventTitle(call: ProviderToolCall, isError: Boolean): String? {
@@ -143,6 +233,8 @@ fun codeEventTitle(call: ProviderToolCall, isError: Boolean): String? {
         CodeToolNames.LIST -> if (isError) "Не удалось просмотреть $shown" else "Просмотрел $shown"
         CodeToolNames.READ -> if (isError) "Не удалось прочитать $shown" else "Прочитал $shown"
         CodeToolNames.WRITE -> if (isError) "Не удалось подготовить изменение $shown" else "Подготовил изменение $shown"
+        CodeToolNames.GREP -> if (isError) "Не удалось выполнить поиск" else "Нашёл совпадения · $shown"
+        CodeToolNames.FIND -> if (isError) "Не удалось найти файлы" else "Искал файлы · $shown"
         else -> null
     }
 }
