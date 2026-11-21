@@ -149,7 +149,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
                         Btn("Добавить провайдера", { vms.app.open(SheetKind.ProviderEdit) }, Modifier.fillMaxWidth(), primary = true, icon = HIcon.Plus)
                     }
-                    SheetNote("Активный провайдер отвечает в чатах. При лимите или нулевом балансе приложение предложит переключиться на другого. Свои серверы читают список моделей из /models.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Активный провайдер отвечает в чатах. При лимите или нулевом балансе приложение предложит переключиться на другого. Свои серверы читают список моделей из /models.", Modifier.padding(horizontal = 20.dp))
                 }
                 "coding" -> {
                     val mode by vms.code.mode.collectAsStateWithLifecycle()
@@ -168,10 +168,10 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     )
                     Sg("Инструкции и скиллы")
                     GrpOf({ NavRow("Скиллы", "${skills.count { it.enabled && it.body.isNotBlank() }} с инструкциями", icon = HIcon.Pen) { nav.settings("skills") } })
-                    SheetNote("Включённые скиллы с непустым текстом добавляются к запросам как инструкции. Они не устанавливают плагины и не дают доступ к запуску команд.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Включённые скиллы с непустым текстом добавляются к запросам как инструкции. Они не устанавливают плагины и не дают доступ к запуску команд.", Modifier.padding(horizontal = 20.dp))
                     Sg("Рабочая область")
                     GrpOf({ NavRow("Сменить рабочую область", workspace, icon = HIcon.Folder) { vms.app.open(SheetKind.Workspace) } })
-                    SheetNote("Выбор области и режима не переносит существующие сессии и их правки. Модель, усилия, поиск и инструкции используются в следующих запросах Chat и Code. Code читает файлы и готовит изменения, но не запускает команды, сборки или тесты.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Выбор области и режима не переносит существующие сессии и их правки. Модель, усилия, поиск и инструкции используются в следующих запросах Chat и Code. Code читает файлы и готовит изменения, но не запускает команды, сборки или тесты.", Modifier.padding(horizontal = 20.dp))
                 }
                 "perm" -> {
                     val mode by vms.code.mode.collectAsStateWithLifecycle()
@@ -184,9 +184,9 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                         }
                         RadioRow(choice.label, mode == choice.label, description) { vms.code.setMode(choice.label) }
                     }
-                    SheetNote("Режим можно поменять в самой сессии. Code не запускает команды, сборки и тесты.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Режим можно поменять в самой сессии. Code не запускает команды, сборки и тесты.", Modifier.padding(horizontal = 20.dp))
                     Sg("Коннекторы в чате")
-                    SheetNote("Для вызовов, не помеченных коннектором как чтение, нужно подтверждение. Можно разрешить один вызов или запомнить конкретный инструмент только для этого чата. Смена подключения или инструмента требует нового согласия.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Для вызовов, не помеченных коннектором как чтение, нужно подтверждение. Можно разрешить один вызов или запомнить конкретный инструмент только для этого чата. Смена подключения или инструмента требует нового согласия.", Modifier.padding(horizontal = 20.dp))
                     val configs by sv.mcpConfigs.collectAsStateWithLifecycle()
                     val chats by vms.chat.chats.collectAsStateWithLifecycle()
                     val grants = configs.values.flatMap { it.grants }
@@ -217,11 +217,11 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                         router -> "OpenRouter может брать дополнительную плату за веб-поиск."
                         else -> "Используется поиск Anthropic. Доступ зависит от модели и настроек API-аккаунта."
                     }
-                    SheetNote("$detail Настройка общая для Chat и Code. Ссылки отображаются, если провайдер их вернул.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("$detail Настройка общая для Chat и Code. Ссылки отображаются, если провайдер их вернул.", Modifier.padding(horizontal = 20.dp))
                 }
                 "instr" -> {
                     GrpOf({ LiField("Инструкции для агента", s.instructions, { sv.set(K.instructions, it) }, "Как отвечать и работать с кодом", singleLine = false, minLines = 5) })
-                    SheetNote("Сохраняется автоматически и добавляется к каждому запросу.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Сохраняется автоматически и добавляется к каждому запросу.", Modifier.padding(horizontal = 20.dp))
                 }
                 "dirs" -> {
                     val pick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -290,7 +290,7 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                 "about" -> {
                     val ver = remember_versionName()
                     Sg("Clodex Harness")
-                    SheetNote("Android-клиент для чата с ИИ и работы с кодом в локальных папках и репозиториях GitHub.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Android-клиент для чата с ИИ и работы с кодом в локальных папках и репозиториях GitHub.", Modifier.padding(horizontal = 20.dp))
                     GrpOf(
                         { Li { Text("Версия", style = H.t.body, color = H.c.ink, modifier = Modifier.weight(1f)); Text(ver, style = H.t.row14, color = H.c.mu) } },
                         { NavRow("Лицензии", icon = HIcon.Docp) { vms.app.open(SheetKind.Licenses) } },
@@ -312,12 +312,12 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                         { NavRow("3. Настроить рабочую папку", sub = "Для Code можно использовать локальную папку или указать репозиторий GitHub в сессии.", icon = HIcon.Folder) { nav.settings("dirs") } },
                     )
                     Sg("Веб-поиск")
-                    SheetNote("Выберите Anthropic или настройте OpenRouter как совместимый с OpenAI сервис. Затем в чате откройте меню «+» рядом с полем ввода и включите «Веб-поиск».", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Выберите Anthropic или настройте OpenRouter как совместимый с OpenAI сервис. Затем в чате откройте меню «+» рядом с полем ввода и включите «Веб-поиск».", Modifier.padding(horizontal = 20.dp))
                     GrpOf({ NavRow("Открыть настройки поиска", icon = HIcon.Globe) { nav.settings("search") } })
                 }
                 "ghtoken" -> {
                     GrpOf({ LiField("Персональный токен GitHub", s.githubToken, { sv.set(K.githubToken, it) }, "ghp_…", password = true) })
-                    SheetNote("Нужен только для приватных репозиториев и чтобы не упираться в лимит API при установке скиллов. Публичные репозитории работают без токена.", Modifier.padding(horizontal = 16.dp))
+                    SheetNote("Нужен только для приватных репозиториев и чтобы не упираться в лимит API при установке скиллов. Публичные репозитории работают без токена.", Modifier.padding(horizontal = 20.dp))
                 }
             }
         }

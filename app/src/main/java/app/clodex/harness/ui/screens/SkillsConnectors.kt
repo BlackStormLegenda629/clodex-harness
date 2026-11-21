@@ -86,7 +86,7 @@ fun SkillsScreen() {
             if (list.isEmpty()) Emp("Скиллов не найдено", HIcon.Pen)
             else Grp(list) { s, _ ->
                 Row(
-                    Modifier.fillMaxWidth().hClick { vms.app.open(SheetKind.SkillDetail, s.id) }.padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+                    Modifier.fillMaxWidth().hClick { vms.app.open(SheetKind.SkillDetail, s.id) }.padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     IconPlate(HIcons.byName(s.icon))
@@ -103,8 +103,7 @@ private fun ConnectorCard(c: ConnectorEntity, e: ConnCatalogEntry?, index: Int, 
     val theme = H.c
     val shape = RoundedCornerShape(HDim.card)
     Column(
-        Modifier.fillMaxWidth().rise(index).clip(shape).background(theme.s1)
-            .border(1.dp, theme.line, shape).padding(14.dp),
+        Modifier.fillMaxWidth().rise(index).clip(shape).background(theme.s1).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(Modifier.fillMaxWidth().hClick(onClick = onOpen), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -143,7 +142,7 @@ fun ConnectorsScreen() {
                 if (mine.isEmpty()) Emp("Подключённых коннекторов пока нет. Загляните в «Обзор».", HIcon.Plug)
                 else Grp(mine) { c, _ ->
                     Row(
-                        Modifier.fillMaxWidth().hClick { vms.app.open(SheetKind.ConnectorDetail, c.id) }.padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+                        Modifier.fillMaxWidth().hClick { vms.app.open(SheetKind.ConnectorDetail, c.id) }.padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         ConnectorMark(c)

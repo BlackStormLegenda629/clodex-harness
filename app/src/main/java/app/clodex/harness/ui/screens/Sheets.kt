@@ -63,7 +63,7 @@ private fun FormField(label: String, value: String, onChange: (String) -> Unit, 
         Text(label, style = t.note, color = c.mu, modifier = Modifier.padding(horizontal = 4.dp))
         BasicTextField(
             value, onChange, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ink), minLines = minLines, singleLine = minLines == 1,
-            modifier = Modifier.fillMaxWidth().clip(shape).background(c.s1).border(1.dp, c.line, shape).padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.fillMaxWidth().clip(shape).background(c.s2).padding(horizontal = 16.dp, vertical = 14.dp),
             decorationBox = { inner -> Box { if (value.isEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
         )
     }
@@ -267,7 +267,7 @@ fun ColumnScope.SheetContent(sheet: Sheet) {
                 androidx.compose.foundation.text.selection.SelectionContainer {
                     Text(
                         text, style = H.t.monoCode, color = H.c.ink,
-                        modifier = Modifier.fillMaxWidth().clip(shape).background(H.c.s1).border(1.dp, H.c.line, shape).padding(14.dp),
+                        modifier = Modifier.fillMaxWidth().clip(shape).background(H.c.s1).padding(16.dp),
                     )
                 }
             }
