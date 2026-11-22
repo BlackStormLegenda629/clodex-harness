@@ -24,6 +24,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +73,7 @@ import app.clodex.harness.util.RelativeTime
 @Composable
 fun CodeHeader() {
     val nav = LocalNav.current
-    Header("Code", big = true, actions = {
+    Header("Программирование", big = true, actions = {
         IconBtn(HIcon.Code, "Терминал", { nav.terminal() }, circle = true)
         GearBtn()
     })
@@ -142,15 +145,21 @@ fun ColumnScope.CodeBody() {
     )
     Body {
         val c = H.c
-        val shape = RoundedCornerShape(HDim.card)
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).hClick { vms.app.open(SheetKind.Workspace) }
-                .hCard(shape).padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+        Card(
+            onClick = { vms.app.open(SheetKind.Workspace) },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = c.bb, contentColor = c.bt),
         ) {
-            IconPlate(HIcon.Branch)
-            Titles(if (ws == "Все") "Все рабочие области" else ws, "${spaces.size} " + if (spaces.size == 1) "рабочая область" else "рабочих областей")
-            Ic(HIcon.Ch, tint = c.mu, size = 16.dp)
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Ic(HIcon.Branch, size = 28.dp)
+                    Ic(HIcon.Ch)
+                }
+                Text("Рабочая область", style = MaterialTheme.typography.labelLarge)
+                Text(if (ws == "Все") "Все рабочие области" else ws, style = MaterialTheme.typography.headlineSmall)
+                Text("Доступно областей: ${spaces.size} · Нажмите, чтобы выбрать", style = MaterialTheme.typography.bodyMedium)
+            }
         }
         if (list.isEmpty()) Emp("Сессий пока нет. Запустите первую кнопкой ниже.", HIcon.Code)
         groups.filter { it.second.isNotEmpty() }.forEach { (title, items) ->

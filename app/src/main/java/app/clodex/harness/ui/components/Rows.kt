@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -47,7 +48,8 @@ fun Sg(text: String) {
 fun Modifier.hCard(shape: Shape, color: Color? = null): Modifier {
     val c = H.c
     val fill = color ?: if (H.material) c.s2 else c.s1
-    return clip(shape).background(fill)
+    return shadow(if (H.material) 2.dp else 0.dp, shape)
+        .clip(shape).background(fill)
         .then(if (H.material) Modifier else Modifier.border(1.dp, c.line, shape))
 }
 

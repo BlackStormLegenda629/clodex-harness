@@ -18,6 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,6 +100,18 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
         Body {
             when (id) {
                 "root" -> {
+                    Card(
+                        onClick = { nav.settings("look") },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = CardDefaults.cardColors(containerColor = H.c.bb, contentColor = H.c.bt),
+                    ) {
+                        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Ic(HIcon.Img, size = 28.dp)
+                            Text("Оформление", style = MaterialTheme.typography.headlineSmall)
+                            Text("Тема, шрифты и размер текста", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
                     Sg("Подключения")
                     GrpOf(
                         { ActionRow("Провайдер", s.activeProvider().name, s.model, HIcon.Plug) { nav.settings("prov") } },
@@ -115,7 +130,6 @@ private fun SettingsPage(id: String, onDismissUpdate: (Long) -> Unit) {
                     )
                     Sg("Приложение")
                     GrpOf(
-                        { ActionRow("Внешний вид", icon = HIcon.Img) { nav.settings("look") } },
                         { ActionRow("Уведомления", icon = HIcon.Wait) { nav.settings("notif") } },
                         { ActionRow("Данные и приватность", icon = HIcon.Trash) { nav.settings("priv") } },
                         { ActionRow("О приложении", icon = HIcon.Stack) { nav.settings("about") } },

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +32,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -84,7 +87,7 @@ fun MainScreen() {
 
     if (wide) {
         // Tablet / foldable: permanent sidebar + a single wide work area. No bottom tab bar.
-        Row(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
+        Row(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
             Sidebar(tab)
             Box(Modifier.width(1.dp).fillMaxHeight().background(H.c.line))
             Column(Modifier.weight(1f).fillMaxHeight()) {
@@ -98,10 +101,13 @@ fun MainScreen() {
             }
         }
     } else {
-        ScreenFrame(dock = {
-            TabDock(tab, text, { text = it })
-            TabBar(AppTab.entries.map { Triple(it.label, it.icon, it == tab) }) { vms.app.setTab(AppTab.entries[it]) }
-        }) {
+        val imeVisible = WindowInsets.isImeVisible
+        ScreenFrame(
+            dock = { TabDock(tab, text, { text = it }) },
+            navigation = {
+                if (!imeVisible) TabBar(AppTab.entries.map { Triple(it.label, it.icon, it == tab) }) { vms.app.setTab(AppTab.entries[it]) }
+            },
+        ) {
             AnimatedContent(
                 targetState = tab, modifier = Modifier.weight(1f).fillMaxWidth(),
                 transitionSpec = { fadeIn(m.spec(240, Ease)) togetherWith fadeOut(m.spec(240, Ease)) }, label = "tab",
@@ -156,16 +162,11 @@ private fun TabDock(t: AppTab, text: String, onText: (String) -> Unit) {
 @Composable
 private fun RailItem(label: String, icon: HIcon, selected: Boolean, onClick: () -> Unit) {
     val c = H.c
-    Row(
-        Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(28.dp))
-            .background(if (selected) c.ac.copy(alpha = 0.16f) else Color.Transparent)
-            .hClick(role = Role.Tab, onClick = onClick).semantics { this.selected = selected }
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Ic(icon, tint = if (selected) c.ac else c.mu, size = 22.dp)
-        Text(label, style = H.t.tab.copy(fontSize = 12.sp), color = if (selected) c.ac else c.mu, modifier = Modifier.weight(1f))
-    }
+    NavigationDrawerItem(
+        label = { Text(label) }, icon = { Ic(icon, size = 24.dp) },
+        selected = selected, onClick = onClick,
+        colors = NavigationDrawerItemDefaults.colors(selectedContainerColor = c.bb, selectedIconColor = c.bt, selectedTextColor = c.bt),
+    )
 }
 
 /** Desktop-style navigation rail: brand, tabs, recent chats, settings. */

@@ -33,3 +33,9 @@ apksigner verify --print-certs clodex-4.apk
 - APK: `clodex-5.apk`
 - Канал: `BlackStormLegenda629/clodex-harness`
 - Подпись: тот же ключ выпуска, что и у 1.0
+# 1.2
+
+- versionCode: 6
+- APK: `clodex-6.apk`
+- Канал: `BlackStormLegenda629/clodex-harness`
+- Подпись: `~/clodex-release.jks`, alias `clodex`

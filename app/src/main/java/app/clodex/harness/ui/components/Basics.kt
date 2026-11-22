@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,6 +36,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.width
@@ -61,6 +63,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
@@ -180,7 +183,8 @@ fun Header(
         modifier = modifier,
         navigationIcon = { if (onBack != null) IconBtn(HIcon.Back, "Назад", onBack) else leading?.invoke() },
         actions = actions,
-        colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = c.bg, titleContentColor = c.ink),
+        windowInsets = WindowInsets(0, 0, 0, 0),
+        colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = c.s1, titleContentColor = c.ink),
     )
 }
 
@@ -316,13 +320,24 @@ fun Dock(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
     val c = H.c
-    NavigationBar(containerColor = c.s1) {
+    NavigationBar(
+        containerColor = c.s1,
+        tonalElevation = 3.dp,
+        windowInsets = WindowInsets(0, 0, 0, 0),
+    ) {
         items.forEachIndexed { i, (label, icon, on) ->
             NavigationBarItem(
                 selected = on,
                 onClick = { onTab(i) },
-                icon = { Ic(icon, tint = if (on) c.ac else c.mu) },
-                label = { Text(label, style = H.t.tab) },
+                icon = { Ic(icon, size = 24.dp) },
+                label = { Text(label, style = androidx.compose.material3.MaterialTheme.typography.labelMedium) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = c.bt,
+                    selectedTextColor = c.bt,
+                    indicatorColor = c.bb,
+                    unselectedIconColor = c.mu,
+                    unselectedTextColor = c.mu,
+                ),
             )
         }
     }
@@ -330,11 +345,16 @@ fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
 
 /** Screen shell: status bar + (nav bars ∪ IME) insets, content capped at 1000dp on tablets, optional dock. */
 @Composable
-fun ScreenFrame(dock: (@Composable ColumnScope.() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
+fun ScreenFrame(dock: (@Composable ColumnScope.() -> Unit)? = null, navigation: (@Composable () -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     val c = H.c
-    androidx.compose.material3.Scaffold(containerColor = c.bg) { insets ->
-        Box(Modifier.fillMaxSize().padding(insets), contentAlignment = Alignment.TopCenter) {
-            Column(Modifier.widthIn(max = 1000.dp).fillMaxSize().windowInsetsPadding(WindowInsets.ime)) {
+    androidx.compose.material3.Scaffold(
+        containerColor = c.bg,
+        modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.ime)),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = { navigation?.invoke() },
+    ) { insets ->
+        Box(Modifier.fillMaxSize().padding(insets).consumeWindowInsets(insets), contentAlignment = Alignment.TopCenter) {
+            Column(Modifier.widthIn(max = 1000.dp).fillMaxSize()) {
                 Column(Modifier.weight(1f).fillMaxWidth(), content = content)
                 if (dock != null) Dock(dock)
             }

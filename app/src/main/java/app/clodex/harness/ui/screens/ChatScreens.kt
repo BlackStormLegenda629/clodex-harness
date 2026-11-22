@@ -21,9 +21,15 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -136,10 +142,10 @@ fun androidx.compose.foundation.layout.ColumnScope.ChatBody(onPrefill: ((String)
     if (messages.isEmpty() && !showDraft) {
         Box(
             Modifier.weight(1f).fillMaxWidth(),
-            contentAlignment = if (H.studio) Alignment.Center else Alignment.TopStart,
+            contentAlignment = Alignment.Center,
         ) {
             if (H.studio) StudioWelcome(onPrefill)
-            else Emp(title = "Чем помочь?", icon = HIcon.Chat)
+            else WelcomeCard(onPrefill)
         }
         return
     }
@@ -166,6 +172,35 @@ fun androidx.compose.foundation.layout.ColumnScope.ChatBody(onPrefill: ((String)
                     else if (t.isEmpty()) Text("…", style = H.t.msgAi, color = H.c.mu)
                     if (t.isNotEmpty()) AssistantBlocks(t) { replyHtml = it }
                     ConnectorSuggestions(messages.lastOrNull { it.role == Role.USER }?.text.orEmpty(), usableConnectors)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun WelcomeCard(onPrefill: ((String) -> Unit)?) {
+    val c = H.c
+    Card(
+        modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = c.s1),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        shape = RoundedCornerShape(28.dp),
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(Modifier.size(64.dp).clip(CircleShape).background(c.bb), contentAlignment = Alignment.Center) {
+                Ic(HIcon.Chat, tint = c.bt, size = 30.dp, stroke = 1.8f)
+            }
+            Text("Чем помочь?", style = H.t.pt, color = c.ink, textAlign = TextAlign.Center)
+            Text("Напишите вопрос, идею или задачу — Clodex поможет разобраться.", style = H.t.body, color = c.mu, textAlign = TextAlign.Center)
+            if (onPrefill != null) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
+                listOf("Объяснить код" to "Объясни, как работает этот код:\n", "Составить план" to "Составь пошаговый план для задачи: ", "Подвести итог" to "Кратко перескажи и выдели главное:\n").forEach { (label, prompt) ->
+                    AssistChip(onClick = { onPrefill(prompt) }, label = { Text(label) })
                 }
             }
         }
@@ -406,7 +441,8 @@ fun Composer(
     )
     val shape = RoundedCornerShape(HDim.composer)
     val toolShape = RoundedCornerShape(HDim.chip)
-    Column(Modifier.fillMaxWidth().hCard(shape).padding(horizontal = 12.dp, vertical = 12.dp)) {
+    Surface(Modifier.fillMaxWidth(), shape = shape, color = MaterialTheme.colorScheme.surfaceContainerHigh, shadowElevation = 2.dp) {
+    Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
         if (attachments.isNotEmpty()) {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 attachments.forEachIndexed { i, a ->
@@ -423,7 +459,7 @@ fun Composer(
         }
         BasicTextField(
             value, onValue, textStyle = t.body.copy(color = c.ink), cursorBrush = SolidColor(c.ac), maxLines = 6,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.bg).padding(horizontal = 14.dp, vertical = 4.dp),
             decorationBox = { inner -> Box(Modifier.heightIn(min = 40.dp), contentAlignment = Alignment.CenterStart) { if (value.isEmpty()) Text(placeholder, style = t.body, color = c.mu); inner() } },
         )
         Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -443,6 +479,7 @@ fun Composer(
             if (generating) IconBtn(HIcon.X, "Остановить ответ", onStop, send = true)
             else IconBtn(HIcon.Up, "Отправить", onSend, send = true)
         }
+    }
     }
 }
 
