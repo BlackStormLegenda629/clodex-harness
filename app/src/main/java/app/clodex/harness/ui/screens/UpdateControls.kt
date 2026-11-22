@@ -31,6 +31,7 @@ import app.clodex.harness.ui.components.Li
 import app.clodex.harness.ui.components.SheetNote
 import app.clodex.harness.ui.components.Titles
 import app.clodex.harness.ui.components.TransferProgress
+import app.clodex.harness.BuildConfig
 import app.clodex.harness.ui.theme.LocalProgressStyle
 import app.clodex.harness.updates.ForegroundUpdateChecks
 import app.clodex.harness.updates.GitHubUpdates
@@ -39,6 +40,9 @@ import app.clodex.harness.updates.UnverifiedApkException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+internal fun updateVersionLabel(currentName: String, currentCode: Long, newCode: Long): String =
+    "Версия $currentName ($currentCode) → $newCode"
 
 @Composable
 internal fun UpdateControls(
@@ -117,12 +121,14 @@ internal fun UpdateControls(
         }
         AlertDialog(
             onDismissRequest = ::later,
-            title = { Text("Что нового · Clodex (${update.versionCode})") },
+            title = { Text("Что нового · Clodex") },
             text = {
                 Column {
+                    Text(updateVersionLabel(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE.toLong(), update.versionCode))
+                    Text("Размер: ${Formatter.formatShortFileSize(context, update.size)}", Modifier.padding(top = 4.dp))
                     Text(
                         update.notes.ifBlank { "Описание изменений не добавлено." },
-                        Modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState()),
+                        Modifier.padding(top = 12.dp).heightIn(max = 200.dp).verticalScroll(rememberScrollState()),
                     )
                     if (busy) {
                         val finished = downloaded == update.size
