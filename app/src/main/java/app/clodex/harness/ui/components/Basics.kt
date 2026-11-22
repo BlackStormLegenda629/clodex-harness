@@ -59,6 +59,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -161,24 +164,24 @@ internal object HapticPolicy {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun Header(
     title: String, modifier: Modifier = Modifier, onBack: (() -> Unit)? = null, leading: (@Composable () -> Unit)? = null,
     big: Boolean = false, subtitle: String? = null, actions: @Composable RowScope.() -> Unit = {},
 ) {
     val c = H.c; val t = H.t
-    val hasLead = onBack != null || leading != null
-    Row(
-        modifier.fillMaxWidth().heightIn(min = HDim.header)
-            .padding(start = if (hasLead) 8.dp else 16.dp, end = 12.dp, top = 20.dp, bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        if (onBack != null) IconBtn(HIcon.Back, "Назад", onBack) else leading?.invoke()
-        Column(Modifier.weight(1f)) {
-            Text(title, style = if (big) t.big else t.hd, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (subtitle != null) Text(subtitle, style = t.mono12, color = c.mu, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
-        }
-        actions()
-    }
+    androidx.compose.material3.TopAppBar(
+        title = {
+            Column {
+                Text(title, style = if (big) t.big else t.hd, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (subtitle != null) Text(subtitle, style = t.mono12, color = c.mu, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        },
+        modifier = modifier,
+        navigationIcon = { if (onBack != null) IconBtn(HIcon.Back, "Назад", onBack) else leading?.invoke() },
+        actions = actions,
+        colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = c.bg, titleContentColor = c.ink),
+    )
 }
 
 @Composable
@@ -313,31 +316,14 @@ fun Dock(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
     val c = H.c
-    val m = LocalMotion.current
-    BoxWithConstraints(Modifier.fillMaxWidth().height(HDim.tabsBar).clip(RoundedCornerShape(28.dp)).background(c.s1).padding(4.dp)) {
-        val index = items.indexOfFirst { it.third }.coerceAtLeast(0)
-        val tabW = maxWidth / items.size
-        val x by animateDpAsState(tabW * index + (tabW - 64.dp) / 2, m.spec(320, Rise), label = "tabIndicator")
-        // Material You selection pill slides to the active tab.
-        Box(
-            Modifier.offset(x = x).width(64.dp).height(32.dp).clip(RoundedCornerShape(16.dp)).background(c.ac.copy(alpha = 0.16f)),
-        )
-        Row(Modifier.fillMaxSize().selectableGroup()) {
-            items.forEachIndexed { i, (label, icon, on) ->
-                val src = remember { MutableInteractionSource() }
-                val pressed by src.collectIsPressedAsState()
-                val s by animateFloatAsState(
-                    if (pressed) 0.92f else 1f, m.spec(160, Rise), label = "tabIcon",
-                )
-                Column(
-                    Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(10.dp))
-                        .selectable(selected = on, interactionSource = src, indication = null, role = Role.Tab) { onTab(i) },
-                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically),
-                ) {
-                    Ic(icon, Modifier.graphicsLayer { scaleX = s; scaleY = s }, tint = if (on) c.ac else c.mu)
-                    Text(label, style = H.t.tab, color = if (on) c.ink else c.mu)
-                }
-            }
+    NavigationBar(containerColor = c.s1) {
+        items.forEachIndexed { i, (label, icon, on) ->
+            NavigationBarItem(
+                selected = on,
+                onClick = { onTab(i) },
+                icon = { Ic(icon, tint = if (on) c.ac else c.mu) },
+                label = { Text(label, style = H.t.tab) },
+            )
         }
     }
 }
@@ -346,10 +332,12 @@ fun TabBar(items: List<Triple<String, HIcon, Boolean>>, onTab: (Int) -> Unit) {
 @Composable
 fun ScreenFrame(dock: (@Composable ColumnScope.() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     val c = H.c
-    Box(Modifier.fillMaxSize().background(c.bg), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.widthIn(max = 1000.dp).fillMaxSize().statusBarsPadding().windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))) {
-            Column(Modifier.weight(1f).fillMaxWidth(), content = content)
-            if (dock != null) Dock(dock)
+    androidx.compose.material3.Scaffold(containerColor = c.bg) { insets ->
+        Box(Modifier.fillMaxSize().padding(insets), contentAlignment = Alignment.TopCenter) {
+            Column(Modifier.widthIn(max = 1000.dp).fillMaxSize().windowInsetsPadding(WindowInsets.ime)) {
+                Column(Modifier.weight(1f).fillMaxWidth(), content = content)
+                if (dock != null) Dock(dock)
+            }
         }
     }
 }
