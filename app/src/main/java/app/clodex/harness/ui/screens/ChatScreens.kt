@@ -2,6 +2,7 @@ package app.clodex.harness.ui.screens
 
 import app.clodex.harness.ui.vm.SheetKind
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -183,22 +184,25 @@ fun androidx.compose.foundation.layout.ColumnScope.ChatBody(onPrefill: ((String)
 private fun WelcomeCard(onPrefill: ((String) -> Unit)?) {
     val c = H.c
     Card(
-        modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+        modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 16.dp),
         colors = CardDefaults.cardColors(containerColor = c.s1),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(32.dp),
     ) {
         Column(
-            Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = 32.dp),
+            Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Box(Modifier.size(64.dp).clip(CircleShape).background(c.bb), contentAlignment = Alignment.Center) {
-                Ic(HIcon.Chat, tint = c.bt, size = 30.dp, stroke = 1.8f)
+            Box(Modifier.size(72.dp).clip(RoundedCornerShape(24.dp)).background(c.bb), contentAlignment = Alignment.Center) {
+                Ic(HIcon.Chat, tint = c.bt, size = 36.dp, stroke = 1.8f)
             }
             Text("Чем помочь?", style = H.t.pt, color = c.ink, textAlign = TextAlign.Center)
-            Text("Напишите вопрос, идею или задачу — Clodex поможет разобраться.", style = H.t.body, color = c.mu, textAlign = TextAlign.Center)
-            if (onPrefill != null) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
+            Text("Напишите вопрос, идею или задачу", style = H.t.body, color = c.mu, textAlign = TextAlign.Center)
+            if (onPrefill != null) FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.padding(top = 8.dp),
+            ) {
                 listOf("Объяснить код" to "Объясни, как работает этот код:\n", "Составить план" to "Составь пошаговый план для задачи: ", "Подвести итог" to "Кратко перескажи и выдели главное:\n").forEach { (label, prompt) ->
                     AssistChip(onClick = { onPrefill(prompt) }, label = { Text(label) })
                 }
@@ -330,10 +334,10 @@ fun MessageItem(
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    m.text, style = t.msgUser, color = c.bg,
-                    modifier = Modifier.widthIn(max = if (wide) 440.dp else 290.dp)
-                        .clip(RoundedCornerShape(HDim.userMsgBig, HDim.userMsgBig, HDim.userMsgSmall, HDim.userMsgBig))
-                        .background(c.ink).padding(horizontal = 16.dp, vertical = 12.dp),
+                    m.text, style = t.msgUser, color = c.onAc,
+                    modifier = Modifier.widthIn(max = if (wide) 440.dp else 300.dp)
+                        .clip(RoundedCornerShape(HDim.userMsgBig, HDim.userMsgSmall, HDim.userMsgBig, HDim.userMsgBig))
+                        .background(c.ac).padding(horizontal = 18.dp, vertical = 12.dp),
                 )
                 if (m.attachments.isNotBlank()) Text(m.attachments.split('\n').joinToString(" · "), style = t.small, color = c.mu)
             }
@@ -441,7 +445,7 @@ fun Composer(
     )
     val shape = RoundedCornerShape(HDim.composer)
     val toolShape = RoundedCornerShape(HDim.chip)
-    Surface(Modifier.fillMaxWidth(), shape = shape, color = MaterialTheme.colorScheme.surfaceContainerHigh, shadowElevation = 2.dp) {
+    Surface(Modifier.fillMaxWidth(), shape = shape, color = c.s1, shadowElevation = 4.dp, border = BorderStroke(1.dp, c.line.copy(alpha = 0.5f))) {
     Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
         if (attachments.isNotEmpty()) {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

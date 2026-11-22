@@ -63,17 +63,21 @@ private val StudioDark = DarkBase.copy(
     ink = Color(0xFFF2EDE7), mu = Color(0xFFB9AEA4),
 )
 
-/** Fallback Material You palette for Android 8–11 and devices without dynamic color. */
+/** Google Material 3 baseline purple palette. Semantic diff/warning/status colors stay fixed. */
 private val MaterialLight = LightBase.copy(
     bg = Color(0xFFFEF7FF), s1 = Color(0xFFF7F2FA), s2 = Color(0xFFECE6F0), line = Color(0xFFCAC4D0),
-    ink = Color(0xFF1D1B20), mu = Color(0xFF49454F), bb = Color(0xFFE8DEF8), bt = Color(0xFF1D192B),
-    ac = Color(0xFF5B4B8A),
+    ink = Color(0xFF1D1B20), mu = Color(0xFF49454F),
+    bb = Color(0xFFEADDFF), bt = Color(0xFF21005D),
+    ac = Color(0xFF6750A4), onAc = Color(0xFFFFFFFF),
+    error = Color(0xFFB3261E),
 )
 
 private val MaterialDark = DarkBase.copy(
-    bg = Color(0xFF141218), s1 = Color(0xFF1D1B20), s2 = Color(0xFF2B2930), line = Color(0xFF49454F),
-    ink = Color(0xFFE6E0E9), mu = Color(0xFFCAC4D0), bb = Color(0xFF4A4458), bt = Color(0xFFE8DEF8),
-    ac = Color(0xFFCFBCFF), onAc = Color(0xFF332D41),
+    bg = Color(0xFF141218), s1 = Color(0xFF211F26), s2 = Color(0xFF2B2930), line = Color(0xFF49454F),
+    ink = Color(0xFFE6E0E9), mu = Color(0xFFCAC4D0),
+    bb = Color(0xFF4F378B), bt = Color(0xFFEADDFF),
+    ac = Color(0xFFD0BCFF), onAc = Color(0xFF381E72),
+    error = Color(0xFFF2B8B5),
 )
 
 /**
@@ -113,18 +117,18 @@ fun colorsFor(dark: Boolean, accent: Accent, style: AppStyle): HColors =
     }
 
 object HDim {
-    val card = 16.dp
-    val input = 16.dp
-    val composer = 24.dp
+    val card = 20.dp
+    val input = 20.dp
+    val composer = 28.dp
     val sheetTop = 28.dp
     val pill = 24.dp
     val iconBtn = 40.dp
-    val chip = 18.dp
+    val chip = 20.dp
     val tabsBar = 80.dp
     val content = 20.dp
     val header = 64.dp
-    val userMsgBig = 20.dp
-    val userMsgSmall = 6.dp
+    val userMsgBig = 24.dp
+    val userMsgSmall = 8.dp
 }
 
 // CSS easing curves from the prototype

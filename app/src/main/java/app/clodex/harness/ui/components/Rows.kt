@@ -43,12 +43,12 @@ fun Sg(text: String) {
     Text(text, style = H.t.row14Semi, color = H.c.ac, modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 8.dp))
 }
 
-/** Filled M3 card: surface-container tone without a border; Classic and Studio keep the thin border. */
+/** Filled M3 card: surface-container tone with elevation; Classic and Studio keep the thin border. */
 @Composable
 fun Modifier.hCard(shape: Shape, color: Color? = null): Modifier {
     val c = H.c
-    val fill = color ?: if (H.material) c.s2 else c.s1
-    return shadow(if (H.material) 2.dp else 0.dp, shape)
+    val fill = color ?: if (H.material) c.s1 else c.s1
+    return shadow(if (H.material) 3.dp else 0.dp, shape, ambientColor = c.ac.copy(alpha = 0.08f), spotColor = c.ac.copy(alpha = 0.12f))
         .clip(shape).background(fill)
         .then(if (H.material) Modifier else Modifier.border(1.dp, c.line, shape))
 }
