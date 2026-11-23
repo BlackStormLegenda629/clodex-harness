@@ -1,16 +1,13 @@
 package app.clodex.harness.util
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import app.clodex.harness.ui.theme.HColors
 
 sealed interface MdBlock {
     data class Text(val text: String) : MdBlock
@@ -76,35 +73,3 @@ fun inlineMd(text: String, link: SpanStyle, code: SpanStyle): AnnotatedString = 
     }
     append(text.substring(i))
 }
-
-private val TOKEN = Regex(
-    "(#.*$|//.*$)|(\"(?:[^\"\\\\]|\\\\.)*\"|'[^']*')|\\b(import|from|def|return|with|as|for|in|if|elif|else|open|list|class|fun|val|var|const|let|function|new|while|try|except|true|false|null|None|True|False|print)\\b|\\b(\\d+)\\b",
-    RegexOption.MULTILINE,
-)
-
-/** Same four classes as the prototype's hl(): comment / string / keyword / number. */
-fun highlight(code: String, c: HColors): AnnotatedString = buildAnnotatedString {
-    var i = 0
-    for (m in TOKEN.findAll(code)) {
-        append(code.substring(i, m.range.first))
-        val g = m.groups
-        val style = when {
-            g[1] != null -> SpanStyle(color = c.mu, fontStyle = FontStyle.Italic)
-            g[2] != null -> SpanStyle(color = c.ok)
-            g[3] != null -> SpanStyle(color = c.ac)
-            else -> SpanStyle(color = c.warn)
-        }
-        withStyle(style) { append(m.value) }
-        i = m.range.last + 1
-    }
-    append(code.substring(i))
-}
-
-private fun hex(c: Color): String = "#%06X".format(0xFFFFFF and c.toArgb())
-
-/** Gives a bare HTML artifact the look of the prototype's .pvw card (centered, pill buttons). */
-fun wrapHtml(content: String, c: HColors): String = "<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
-    "<style>body{margin:0;padding:40px 20px;background:${hex(c.s1)};color:${hex(c.ink)};font-family:sans-serif;text-align:center}" +
-    "h1,h2,h3,h4{font-size:22px;margin:0 0 8px}p{color:${hex(c.mu)};margin:0 0 18px}" +
-    "a,button{display:inline-block;padding:10px 20px;border:0;border-radius:22px;background:${hex(c.ink)};color:${hex(c.bg)};font-size:14px;text-decoration:none}</style>" +
-    content

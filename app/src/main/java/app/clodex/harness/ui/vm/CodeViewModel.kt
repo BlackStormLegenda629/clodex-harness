@@ -29,7 +29,7 @@ import app.clodex.harness.data.code.codeEventTitle
 import app.clodex.harness.data.code.headBranch
 import app.clodex.harness.data.code.CodeFiles
 import app.clodex.harness.data.code.WorkspaceException
-import app.clodex.harness.ui.components.ThinkingPresentation
+import app.clodex.harness.clodex.thinking.ThinkingPresentation
 import app.clodex.harness.util.ToastBus
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart

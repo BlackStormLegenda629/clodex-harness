@@ -2,7 +2,7 @@ package app.clodex.harness.ui.vm
 
 import app.clodex.harness.data.ClaudeException
 import app.clodex.harness.data.agent.AgentEvent
-import app.clodex.harness.ui.components.ThinkingPresentation
+import app.clodex.harness.clodex.thinking.ThinkingPresentation
 import kotlinx.coroutines.flow.Flow
 
 data class ReplyOutcome(val text: String, val seconds: Int, val steps: List<String>)

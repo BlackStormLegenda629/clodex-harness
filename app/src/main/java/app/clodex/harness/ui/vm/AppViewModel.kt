@@ -5,18 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.clodex.harness.data.K
 import app.clodex.harness.data.SettingsRepository
-import app.clodex.harness.ui.icons.HIcon
+import androidx.compose.ui.graphics.vector.ImageVector
+import app.clodex.harness.clodex.ui.icons.ClodexIcons
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-enum class AppTab(val key: String, val label: String, val icon: HIcon) {
-    CHAT("chat", "Чат", HIcon.Chat),
-    PROJ("proj", "Проекты", HIcon.Stack),
-    CODE("code", "Code", HIcon.Code),
-    ART("art", "Артефакты", HIcon.Cards);
+enum class AppTab(val key: String, val label: String, val icon: ImageVector) {
+    CHAT("chat", "Чат", ClodexIcons.Chat),
+    PROJ("proj", "Проекты", ClodexIcons.Folder),
+    CODE("code", "Code", ClodexIcons.Code),
+    ART("art", "Артефакты", ClodexIcons.Artifacts);
 
     companion object { fun of(key: String) = entries.firstOrNull { it.key == key } ?: CHAT }
 }

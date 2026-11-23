@@ -2,7 +2,7 @@
 
 Сборка из исходников не требует локального OAuth JSON и ключей провайдеров. Обычная отладочная сборка (`./gradlew assembleDebug`) предназначена для разработки. Для публичных APK нужен отдельный закрытый ключ подписи: не кладите его и пароли в репозиторий. Ключ должен оставаться одним и тем же между публичными выпусками.
 
-1. Увеличьте Android `versionCode` и обновите `versionName` перед выпуском. Текущий выпуск — `versionCode 4`, `versionName "1.0"` (тег `v1.0`); перед следующим APK код нужно поднять снова.
+1. Увеличьте Android `versionCode` и обновите `versionName` перед выпуском. Текущий выпуск — `versionCode 7`, `versionName "1.3"` (тег `v1.3`); перед следующим APK код нужно поднять снова.
 2. Запустите `./gradlew testDebugUnitTest`, соберите и подпишите один APK для публикации.
 3. Проверьте подпись через `apksigner verify --print-certs <apk>` и попробуйте обновить предыдущую сборку без удаления приложения.
 4. Создайте **GitHub Release** с тегом версии, приложите подписанный APK по соглашению ниже и напишите в описании, что изменилось. Коммит или тег без опубликованного релиза не распространяет APK.
@@ -14,11 +14,11 @@ Android не обновит установленное приложение APK 
 ```sh
 ./gradlew assembleRelease   # канал уже BlackStormLegenda629/clodex-harness
 zipalign -P 16 -f 4 app/build/outputs/apk/release/app-release-unsigned.apk clodex-aligned.apk
-apksigner sign --ks "$HOME/clodex-release.jks" --ks-key-alias clodex --out clodex-4.apk clodex-aligned.apk
-apksigner verify --print-certs clodex-4.apk
+apksigner sign --ks "$HOME/clodex-release.jks" --ks-key-alias clodex --out clodex-7.apk clodex-aligned.apk
+apksigner verify --print-certs clodex-7.apk
 ```
 
-Замените `4` на фактический `versionCode`. Храните резервную копию ключа в защищённом месте. Для входа через Gmail зарегистрируйте Android OAuth-клиент под идентификатором пакета и SHA-1 **публичной** подписи отдельно от отладочного клиента.
+Замените `7` на фактический `versionCode`. Храните резервную копию ключа в защищённом месте. Для входа через Gmail зарегистрируйте Android OAuth-клиент под идентификатором пакета и SHA-1 **публичной** подписи отдельно от отладочного клиента.
 
 ## Обновление из приложения
 
@@ -37,5 +37,11 @@ apksigner verify --print-certs clodex-4.apk
 
 - versionCode: 6
 - APK: `clodex-6.apk`
+- Канал: `BlackStormLegenda629/clodex-harness`
+- Подпись: `~/clodex-release.jks`, alias `clodex`
+# 1.3
+
+- versionCode: 7
+- APK: `clodex-7.apk`
 - Канал: `BlackStormLegenda629/clodex-harness`
 - Подпись: `~/clodex-release.jks`, alias `clodex`

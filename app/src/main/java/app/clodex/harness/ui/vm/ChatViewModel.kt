@@ -11,7 +11,7 @@ import app.clodex.harness.data.agent.InteractiveApprovalGate
 import app.clodex.harness.data.agent.PendingToolCall
 import app.clodex.harness.data.agent.ToolDecision
 import app.clodex.harness.data.agent.mcpAgentTools
-import app.clodex.harness.ui.components.ThinkingPresentation
+import app.clodex.harness.clodex.thinking.ThinkingPresentation
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellationException
